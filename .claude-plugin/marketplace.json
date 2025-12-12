@@ -1,0 +1,28 @@
+{
+  "name": "tommy-marketplace",
+  "owner": {
+    "name": "Tommy Morgan",
+    "email": "tommy@tommymorgan.com"
+  },
+  "metadata": {
+    "description": "Tommy's curated collection of Claude Code plugins for debugging, development workflow, and productivity",
+    "version": "0.1.0",
+    "repository": "https://github.com/tommymorgan/claude-plugins"
+  },
+  "plugins": [
+    {
+      "name": "root-cause-analysis",
+      "source": "./root-cause-analysis",
+      "description": "Enforces five whys methodology to identify root causes before attempting solutions, preventing speculation-driven debugging",
+      "version": "0.1.0",
+      "category": "debugging"
+    },
+    {
+      "name": "exploratory-tester",
+      "source": "./exploratory-tester",
+      "description": "Autonomous exploratory testing for web apps, APIs, and CLI tools with automated browser capabilities",
+      "version": "0.1.0",
+      "category": "testing"
+    }
+  ]
+}

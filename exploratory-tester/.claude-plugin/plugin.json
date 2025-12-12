@@ -1,0 +1,12 @@
+{
+  "name": "exploratory-tester",
+  "version": "0.1.0",
+  "description": "Autonomous exploratory testing for web apps, APIs, and CLI tools with automated browser capabilities",
+  "author": {
+    "name": "Tommy Morgan",
+    "email": "tommy@tommymorgan.com"
+  },
+  "repository": "https://github.com/tommy/claude-plugins",
+  "license": "MIT",
+  "keywords": ["testing", "exploratory", "browser", "api", "cli", "automation", "playwright"]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "root-cause-analysis",
+  "version": "0.1.0",
+  "description": "Enforces five whys methodology to identify root causes before attempting solutions, preventing speculation-driven debugging",
+  "author": {
+    "name": "Tommy Morgan",
+    "email": "tommy@tommymorgan.com"
+  },
+  "repository": "https://github.com/tommy/claude-plugins",
+  "license": "MIT",
+  "keywords": ["debugging", "root-cause", "five-whys", "methodology", "problem-solving"]
+}
