@@ -1,5 +1,6 @@
 ---
-description: Generate conventional commit messages by auto-detecting type and scope from changed files, following strict formatting standards
+name: git-commit-formatter
+description: Use this agent when you need to generate conventional commit messages with auto-detected type and scope from changed files. Examples:
 model: sonnet
 color: purple
 ---

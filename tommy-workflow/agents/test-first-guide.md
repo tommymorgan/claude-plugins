@@ -1,5 +1,6 @@
 ---
-description: Enforce test-first development by validating test quality before allowing implementation, with auto-discovery of test frameworks across top 10 programming languages
+name: test-first-guide
+description: Use this agent when enforcing test-first development by validating test quality before allowing implementation. Examples:
 model: sonnet
 color: yellow
 ---

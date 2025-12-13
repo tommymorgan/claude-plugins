@@ -1,5 +1,6 @@
 ---
-description: Create and maintain structured todo files with automatic changelog generation for completed features
+name: todo-manager
+description: Use this agent when a feature is complete and needs structured todo file creation and changelog entry generation. Examples:
 model: sonnet
 color: green
 ---

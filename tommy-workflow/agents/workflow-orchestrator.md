@@ -1,5 +1,6 @@
 ---
-description: Orchestrate Tommy's complete quality-first development workflow by coordinating brainstorming, code review, test-first development, exploratory testing, todo tracking, and commit formatting through automated agent coordination
+name: workflow-orchestrator
+description: Use this agent when orchestrating complete quality-first development workflows with automated agent coordination. Examples:
 model: sonnet
 color: blue
 ---
