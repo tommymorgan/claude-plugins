@@ -1,12 +1,12 @@
 {
-	"name": "tommy-marketplace",
+	"name": "tommymorgan",
 	"owner": {
 		"name": "Tommy Morgan",
 		"email": "tommy@tommymorgan.com"
 	},
 	"metadata": {
 		"description": "Tommy's curated collection of Claude Code plugins for debugging, development workflow, and productivity",
-		"version": "0.1.0",
+		"version": "0.2.0",
 		"repository": "https://github.com/tommymorgan/claude-plugins"
 	},
 	"plugins": [
@@ -25,9 +25,9 @@
 			"category": "testing"
 		},
 		{
-			"name": "tommy-workflow",
-			"source": "./tommy-workflow",
-			"description": "Automated workflow orchestration for quality-first development with TDD, code review, exploratory testing, and conventional commits",
+			"name": "tommymorgan",
+			"source": "./tommymorgan",
+			"description": "Git-based plan tracking with autonomous TDD execution and verified task completion",
 			"version": "0.1.0",
 			"category": "workflow"
 		}
