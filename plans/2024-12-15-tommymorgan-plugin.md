@@ -94,39 +94,39 @@ Feature: Worktree Integration
 
 ### 1. Create plugin structure and manifest
 **Verify**: `test -f tools/claude-plugins/tommymorgan/.claude-plugin/plugin.json && cat tools/claude-plugins/tommymorgan/.claude-plugin/plugin.json | jq -e '.name == "tommymorgan"'`
-**Status**: pending
+**Status**: complete
 
 ### 2. Implement /tommymorgan:plan command
 **Verify**: `test -f tools/claude-plugins/tommymorgan/commands/plan.md`
-**Status**: pending
+**Status**: complete
 
 ### 3. Implement /tommymorgan:status command
 **Verify**: `test -f tools/claude-plugins/tommymorgan/commands/status.md`
-**Status**: pending
+**Status**: complete
 
 ### 4. Implement /tommymorgan:work command
 **Verify**: `test -f tools/claude-plugins/tommymorgan/commands/work.md`
-**Status**: pending
+**Status**: complete
 
 ### 5. Create plan-format skill with Gherkin template
 **Verify**: `test -f tools/claude-plugins/tommymorgan/skills/plan-format/SKILL.md`
-**Status**: pending
+**Status**: complete
 
 ### 6. Create verification-sweep skill
 **Verify**: `test -f tools/claude-plugins/tommymorgan/skills/verification-sweep/SKILL.md`
-**Status**: pending
+**Status**: complete
 
 ### 7. Create tdd-execution skill
 **Verify**: `test -f tools/claude-plugins/tommymorgan/skills/tdd-execution/SKILL.md`
-**Status**: pending
+**Status**: complete
 
 ### 8. Remove or archive tommy-workflow plugin
 **Verify**: `test ! -d tools/claude-plugins/tommy-workflow/.claude-plugin`
-**Status**: pending
+**Status**: complete
 
 ### 9. Rename marketplace to tommymorgan
 **Verify**: `test -d /home/tommy/.claude/plugins/cache/tommymorgan && grep -q "tommymorgan@tommymorgan" /home/tommy/.claude/settings.json`
-**Status**: pending
+**Status**: complete
 
 ### 10. Test full workflow end-to-end
 **Verify**: `echo "Manual verification: run /tommymorgan:plan, /tommymorgan:status, /tommymorgan:work on a test feature"`
