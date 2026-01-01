@@ -19,5 +19,27 @@
 		"autonomous",
 		"quality-gates",
 		"expert-review"
+	],
+	"commands": [
+		"planning/commands/plan.md",
+		"planning/commands/work.md",
+		"planning/commands/status.md",
+		"testing/commands/test.md",
+		"debugging/commands/root-cause.md"
+	],
+	"skills": [
+		"planning/skills/plan-format",
+		"planning/skills/tdd-execution",
+		"planning/skills/verification-sweep",
+		"testing/skills/api-testing-patterns",
+		"testing/skills/browser-testing-patterns",
+		"testing/skills/cli-testing-patterns",
+		"debugging/skills/five-whys-methodology"
+	],
+	"agents": [
+		"testing/agents/api-explorer.md",
+		"testing/agents/browser-explorer.md",
+		"testing/agents/cli-tester.md",
+		"debugging/agents/root-cause-analyzer.md"
 	]
 }

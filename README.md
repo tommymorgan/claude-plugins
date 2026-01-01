@@ -82,13 +82,26 @@ Root cause identified. Now proceeding to fix...
 
 ## Publishing Changes
 
-To push plugin updates to GitHub:
+Plugin development happens in `homelab/tools/claude-plugins/`. To publish to GitHub:
 
+**1. Sync files to publish repository:**
 ```bash
-git push claude-plugins main
+rsync -av --delete ~/src/homelab/tools/claude-plugins/ ~/src/claude-plugins-publish/ --exclude=.git --exclude=plans
 ```
 
-This publishes changes to the public marketplace at https://github.com/tommymorgan/claude-plugins.
+**2. Commit and push:**
+```bash
+cd ~/src/claude-plugins-publish
+git add -A
+git commit -m "feat: <description of changes>"
+git push origin main
+```
+
+**Why separate repos?**
+The homelab repository contains secrets in its git history. Git subtree push includes parent commits, which would expose those secrets to GitHub's secret scanning. Using a separate publish repository ensures clean history without secrets.
+
+**Publish repo location:** `~/src/claude-plugins-publish/`
+**Public marketplace:** https://github.com/tommymorgan/claude-plugins
 
 ## Contributing
 
