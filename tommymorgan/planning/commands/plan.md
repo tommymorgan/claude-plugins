@@ -205,7 +205,6 @@ Plan file format:
 # Feature: <title>
 
 **Created**: YYYY-MM-DD
-**Branch**: feat/<slug>
 **Goal**: <one-sentence user-facing outcome>
 
 ## User Requirements
@@ -234,26 +233,12 @@ Create the plans directory if it doesn't exist:
 mkdir -p <project>/plans
 ```
 
-### Step 9: Create Feature Worktree
+### Step 9: Report Completion
 
-Use the Skill tool to create a git worktree:
-
-```
-Skill("superpowers:using-git-worktrees")
-```
-
-Create a worktree for branch `feat/<slug>` based on the plan's branch field.
-
-The worktree should be created from latest main so it contains the plan file.
-
-### Step 10: Report Completion
-
-After creating the plan and worktree, report:
+After creating the plan, report:
 
 ```
 Plan created: <path to plan file>
-Worktree: <path to worktree>
-Branch: feat/<slug>
 
 Expert Review Summary:
 - All 7 experts reviewed and approved

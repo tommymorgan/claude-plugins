@@ -1,0 +1,21 @@
+{
+	"name": "auto-resize-images",
+	"version": "1.0.0",
+	"description": "Automatically resize oversized images before Claude API submission to prevent 2000px dimension limit errors",
+	"author": {
+		"name": "Tommy Morgan",
+		"email": "tommy@tommymorgan.com",
+		"url": "https://tommymorgan.com"
+	},
+	"repository": "https://github.com/tommy/claude-plugins",
+	"license": "MIT",
+	"keywords": [
+		"images",
+		"resize",
+		"hooks",
+		"preprocessing",
+		"quality",
+		"transparency"
+	],
+	"hooks": ["./hooks/hooks.json"]
+}

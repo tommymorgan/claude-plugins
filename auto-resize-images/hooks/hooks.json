@@ -1,0 +1,8 @@
+{
+	"UserPromptSubmit": [
+		{
+			"command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/resize-images.py",
+			"timeout": 5000
+		}
+	]
+}
