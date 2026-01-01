@@ -1,6 +1,6 @@
 {
 	"name": "tommymorgan",
-	"version": "1.0.2",
+	"version": "1.1.0",
 	"description": "Comprehensive development workflow: planning with expert review, autonomous TDD execution, smart testing, and root-cause debugging",
 	"author": {
 		"name": "Tommy Morgan",
@@ -24,6 +24,7 @@
 		"./planning/commands/plan.md",
 		"./planning/commands/work.md",
 		"./planning/commands/status.md",
+		"./planning/commands/review-plan.md",
 		"./testing/commands/test.md",
 		"./debugging/commands/root-cause.md"
 	],
