@@ -11,24 +11,10 @@
 	},
 	"plugins": [
 		{
-			"name": "root-cause-analysis",
-			"source": "./root-cause-analysis",
-			"description": "Enforces five whys methodology to identify root causes before attempting solutions, preventing speculation-driven debugging",
-			"version": "0.1.0",
-			"category": "debugging"
-		},
-		{
-			"name": "exploratory-tester",
-			"source": "./exploratory-tester",
-			"description": "Autonomous exploratory testing for web apps, APIs, and CLI tools with automated browser capabilities",
-			"version": "0.1.0",
-			"category": "testing"
-		},
-		{
 			"name": "tommymorgan",
 			"source": "./tommymorgan",
-			"description": "Git-based plan tracking with autonomous TDD execution and verified task completion",
-			"version": "0.1.0",
+			"description": "Comprehensive development workflow: planning with expert review, autonomous TDD execution, smart testing, and root-cause debugging",
+			"version": "1.0.0",
 			"category": "workflow"
 		}
 	]

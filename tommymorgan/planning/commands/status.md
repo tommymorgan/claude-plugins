@@ -1,5 +1,5 @@
 ---
-name: status
+name: tommymorgan:status
 description: Check scenario completion status in a plan and report progress
 argument-hint: "[optional: path/to/plan.md]"
 allowed-tools:

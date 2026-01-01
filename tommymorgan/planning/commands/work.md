@@ -1,5 +1,5 @@
 ---
-name: work
+name: tommymorgan:work
 description: Execute plan autonomously with TDD, code review, and exploratory testing gates until complete
 argument-hint: "[optional: path/to/plan.md]"
 allowed-tools:

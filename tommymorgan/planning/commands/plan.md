@@ -1,5 +1,5 @@
 ---
-name: plan
+name: tommymorgan:plan
 description: Create a new feature plan via brainstorming with Gherkin requirements
 argument-hint: "feature description"
 allowed-tools:

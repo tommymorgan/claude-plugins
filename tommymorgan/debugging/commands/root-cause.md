@@ -1,4 +1,5 @@
 ---
+name: tommymorgan:root-cause
 description: Perform systematic root cause analysis using five whys methodology
 argument-hint: [problem-description]
 allowed-tools: Task

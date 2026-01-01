@@ -1,5 +1,5 @@
 ---
-name: test
+name: tommymorgan:test
 description: Smart testing with plan-awareness - automatically selects appropriate testing strategy based on context
 argument-hint: "[test description]"
 allowed-tools:
