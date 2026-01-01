@@ -8,6 +8,7 @@ Provides clear feedback and maintains image quality.
 
 import base64
 import json
+import re
 import sys
 from io import BytesIO
 from pathlib import Path
@@ -17,6 +18,90 @@ from PIL import Image, UnidentifiedImageError
 # Configuration
 MAX_DIMENSION = 2000  # Claude API limit
 SUPPORTED_FORMATS = ["image/png", "image/jpeg", "image/gif"]
+
+
+def read_config(project_root: str = None) -> dict:
+    """
+    Read configuration from .claude/tommymorgan.local.md
+
+    Args:
+        project_root: Project root directory (defaults to cwd)
+
+    Returns:
+        Dict with configuration, defaults to auto_resize_images: true
+    """
+    if project_root is None:
+        project_root = Path.cwd()
+    else:
+        project_root = Path(project_root)
+
+    config_path = project_root / ".claude" / "tommymorgan.local.md"
+
+    # Default configuration
+    config = {"auto_resize_images": True}
+
+    if not config_path.exists():
+        return config
+
+    try:
+        content = config_path.read_text(encoding="utf-8")
+
+        # Extract YAML frontmatter
+        frontmatter_match = re.match(r"^---\s*\n(.*?)\n---", content, re.DOTALL)
+        if frontmatter_match:
+            frontmatter = frontmatter_match.group(1)
+
+            # Parse auto_resize_images setting (simple boolean parsing)
+            if "auto_resize_images:" in frontmatter:
+                # Extract value after auto_resize_images:
+                value_match = re.search(
+                    r"auto_resize_images:\s*(true|false)", frontmatter, re.IGNORECASE
+                )
+                if value_match:
+                    config["auto_resize_images"] = (
+                        value_match.group(1).lower() == "true"
+                    )
+
+    except (PermissionError, UnicodeDecodeError):
+        # On error, use defaults
+        pass
+
+    return config
+
+
+def should_process(config: dict) -> bool:
+    """
+    Determine if image processing should run based on config
+
+    Args:
+        config: Configuration dict
+
+    Returns:
+        True if should process images, False to skip
+    """
+    return config.get("auto_resize_images", True)
+
+
+def detect_plugin_conflict(enabled_plugins: list) -> bool:
+    """
+    Detect if auto-resize-images plugin is also installed
+
+    Args:
+        enabled_plugins: List of enabled plugin names
+
+    Returns:
+        True if auto-resize-images is present (conflict), False otherwise
+    """
+    return "auto-resize-images" in enabled_plugins
+
+
+def warn_plugin_conflict():
+    """Log warning to stderr about duplicate plugins"""
+    sys.stderr.write(
+        "WARNING: Both auto-resize-images and tommymorgan image resize detected.\n"
+        "Duplicate processing wastes resources.\n"
+        "Please uninstall auto-resize-images: claude plugin uninstall auto-resize-images\n"
+    )
 
 
 def block_submission(reason: str):
@@ -198,6 +283,19 @@ def main():
     """Main hook execution"""
     # Read input
     hook_input = read_hook_input()
+
+    # Check for plugin conflicts
+    enabled_plugins = hook_input.get("enabled_plugins", [])
+    if detect_plugin_conflict(enabled_plugins):
+        warn_plugin_conflict()
+
+    # Read configuration
+    config = read_config()
+
+    # Check if processing is enabled
+    if not should_process(config):
+        sys.exit(0)  # Silent skip when disabled
+
     transcript_path = hook_input.get("transcript_path")
 
     if not transcript_path:

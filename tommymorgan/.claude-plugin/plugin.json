@@ -1,7 +1,7 @@
 {
 	"name": "tommymorgan",
-	"version": "1.1.1",
-	"description": "Comprehensive development workflow: planning with expert review, autonomous TDD execution, smart testing, and root-cause debugging",
+	"version": "1.2.0",
+	"description": "Comprehensive development workflow: planning with expert review, autonomous TDD execution, smart testing, root-cause debugging, and automatic image preprocessing",
 	"author": {
 		"name": "Tommy Morgan",
 		"email": "tommy@tommymorgan.com",
@@ -18,7 +18,9 @@
 		"gherkin",
 		"autonomous",
 		"quality-gates",
-		"expert-review"
+		"expert-review",
+		"image-processing",
+		"preprocessing"
 	],
 	"commands": [
 		"./planning/commands/plan.md",

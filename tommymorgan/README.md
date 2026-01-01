@@ -1,10 +1,10 @@
 # tommymorgan
 
-**Version**: 1.1.1
+**Version**: 1.2.0
 **Category**: Development Workflow
 **License**: MIT
 
-Comprehensive development workflow plugin enforcing disciplined planning, autonomous TDD execution, expert code review, and complete task completion.
+Comprehensive development workflow plugin enforcing disciplined planning, autonomous TDD execution, expert code review, complete task completion, and automatic image preprocessing.
 
 ## Philosophy
 
@@ -149,6 +149,51 @@ Work incomplete: 3/12 scenarios TODO (75%)
 - Graceful failure on malformed plans
 - Defensive defaults (allow stop on errors)
 
+### Automatic Image Resizing
+
+**Purpose**: Prevents Claude API errors by automatically resizing oversized images before submission.
+
+**Behavior**:
+- Intercepts UserPromptSubmit events
+- Detects images exceeding 2000px in any dimension
+- Resizes to 2000px max dimension (maintains aspect ratio)
+- Uses LANCZOS resampling for quality preservation
+- Preserves transparency for PNG/GIF
+- Converts RGBA→RGB for JPEG (white background)
+
+**Feedback**:
+```
+Image resized to meet Claude Code 2000px limit: 3200x2400 to 2000x1500
+```
+
+**Configuration**:
+Create `.claude/tommymorgan.local.md` to disable:
+```yaml
+---
+auto_resize_images: false
+---
+
+# TommyMorgan Plugin Configuration
+
+Set auto_resize_images to false to disable automatic resizing.
+```
+
+**Default**: Enabled (automatic resizing active)
+
+**Conflict Detection**:
+- Warns if old `auto-resize-images` plugin is installed
+- Suggests uninstalling to avoid duplicate processing
+- Both hooks will run during transition period
+
+**Error Handling**:
+- Unsupported formats (WEBP, etc): Blocks with helpful conversion instructions
+- Corrupted images: Blocks with recovery suggestions
+- Missing dependencies: Exits gracefully with error to stderr
+
+**Performance**: Executes in <5 seconds per image
+
+**Dependencies**: Python 3.8+ with Pillow (PIL) library
+
 ## Plan File Format
 
 ```markdown
@@ -251,6 +296,7 @@ Claude: Work incomplete: 4/12 scenarios TODO (67%)
 
 ### Hooks
 - **Stop Hook**: Enforces work completion before stopping
+- **Automatic Image Resizing**: Prevents API errors by resizing oversized images
 - **Pre-Push Squash**: Verifies commits are squashed before push
 - **Post-Push Cleanup**: Cleanup after successful push
 
@@ -270,6 +316,7 @@ Claude: Work incomplete: 4/12 scenarios TODO (67%)
 The plugin includes comprehensive test suites:
 - `planning/commands/test_review_plan.py` - 13 tests for plan parsing and context detection
 - `hooks/test_stop_if_incomplete.py` - 18 tests for stop hook enforcement
+- `hooks/test_resize_images.py` - 18 tests for automatic image resizing
 - `hooks/test_pre_push_squash.py` - Tests for pre-push verification
 
 Run tests:
@@ -282,11 +329,22 @@ python3 -m pytest
 
 **Python 3.8+** for hooks
 
+**Python Dependencies:**
+- `Pillow (PIL)` - Required for automatic image resizing
+
 **Recommended plugins** (not required):
 - `pr-review-toolkit` - Additional code review agents
 - `superpowers` - Enhanced skill system
 
 ## Changelog
+
+### v1.2.0 (2026-01-01)
+- **Added**: Built-in automatic image resizing (migrated from auto-resize-images)
+- **Added**: Configuration support via `.claude/tommymorgan.local.md`
+- Automatically resizes images >2000px before submission
+- Conflict detection warns if old auto-resize-images plugin installed
+- Configurable per-project (enabled by default)
+- Transparent operation with clear feedback
 
 ### v1.1.1 (2026-01-01)
 - **Removed**: Override mechanism for stop hook

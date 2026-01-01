@@ -22,7 +22,7 @@ class TestResizeImagesHook(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures"""
-        self.hook_path = Path(__file__).parent / "resize-images.py"
+        self.hook_path = Path(__file__).parent / "resize_images.py"
         self.temp_dir = tempfile.mkdtemp()
 
     def tearDown(self):
@@ -555,6 +555,97 @@ class TestResizeImagesHook(unittest.TestCase):
         resized_img = Image.open(BytesIO(img_data))
         self.assertEqual(resized_img.mode, "RGBA",
                         "Should preserve alpha channel (RGBA mode)")
+
+
+class TestConfigurationSupport(unittest.TestCase):
+    """Test configuration support via .claude/tommymorgan.local.md"""
+
+    def test_reads_config_from_local_md(self):
+        """Should read auto_resize_images setting from YAML frontmatter"""
+        from resize_images import read_config
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = Path(tmpdir) / ".claude" / "tommymorgan.local.md"
+            config_path.parent.mkdir(parents=True)
+            config_path.write_text("""---
+auto_resize_images: false
+---
+
+# Configuration
+""")
+
+            config = read_config(tmpdir)
+
+            self.assertFalse(config["auto_resize_images"])
+
+    def test_defaults_to_enabled_when_no_config(self):
+        """Should default auto_resize_images to true when config missing"""
+        from resize_images import read_config
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config = read_config(tmpdir)
+
+            self.assertTrue(config["auto_resize_images"])
+
+    def test_skips_processing_when_disabled(self):
+        """Should exit early when auto_resize_images: false"""
+        from resize_images import should_process
+
+        config = {"auto_resize_images": False}
+
+        self.assertFalse(should_process(config))
+
+    def test_processes_when_enabled(self):
+        """Should process images when auto_resize_images: true"""
+        from resize_images import should_process
+
+        config = {"auto_resize_images": True}
+
+        self.assertTrue(should_process(config))
+
+
+class TestConflictDetection(unittest.TestCase):
+    """Test detection of old auto-resize-images plugin"""
+
+    def test_detects_old_plugin_conflict(self):
+        """Should detect if auto-resize-images plugin is installed"""
+        from resize_images import detect_plugin_conflict
+
+        # Mock scenario where old plugin exists
+        mock_enabled_plugins = ["tommymorgan", "auto-resize-images", "other-plugin"]
+
+        has_conflict = detect_plugin_conflict(mock_enabled_plugins)
+
+        self.assertTrue(has_conflict)
+
+    def test_no_conflict_when_old_plugin_absent(self):
+        """Should not detect conflict when auto-resize-images not installed"""
+        from resize_images import detect_plugin_conflict
+
+        mock_enabled_plugins = ["tommymorgan", "other-plugin"]
+
+        has_conflict = detect_plugin_conflict(mock_enabled_plugins)
+
+        self.assertFalse(has_conflict)
+
+    def test_logs_warning_for_conflict(self):
+        """Should log warning to stderr when old plugin detected"""
+        from resize_images import warn_plugin_conflict
+
+        import io
+        from contextlib import redirect_stderr
+
+        stderr_capture = io.StringIO()
+        with redirect_stderr(stderr_capture):
+            warn_plugin_conflict()
+
+        output = stderr_capture.getvalue()
+
+        self.assertIn("WARNING:", output)
+        self.assertIn("auto-resize-images", output)
+        self.assertIn("tommymorgan", output)
+        self.assertIn("Duplicate processing wastes resources", output)
+        self.assertIn("claude plugin uninstall auto-resize-images", output)
 
 
 if __name__ == "__main__":

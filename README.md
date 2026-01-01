@@ -20,15 +20,16 @@ claude plugin install <plugin-name>@tommymorgan
 
 ## Available Plugins
 
-### [tommymorgan](./tommymorgan/README.md) v1.1.1
+### [tommymorgan](./tommymorgan/README.md) v1.2.0
 
-**Development Workflow** - Comprehensive workflow plugin enforcing disciplined planning, autonomous TDD execution, expert code review, and complete task completion.
+**Development Workflow** - Comprehensive workflow plugin enforcing disciplined planning, autonomous TDD execution, expert code review, complete task completion, and automatic image preprocessing.
 
 **Key Features:**
 - Gherkin-based planning with TODO/DONE tracking
 - Autonomous TDD execution with quality gates
 - Expert plan review (7 domain experts with context-aware filtering)
 - Work completion enforcement (stop hook blocks partial completion)
+- Automatic image resizing (2000px limit, configurable)
 - Root cause analysis (five whys methodology)
 - Plan-aware testing (API, browser, CLI)
 
@@ -38,25 +39,6 @@ claude plugin install tommymorgan@tommymorgan
 ```
 
 **[Full Documentation →](./tommymorgan/README.md)**
-
----
-
-### [auto-resize-images](./auto-resize-images/README.md) v1.0.0
-
-**Image Processing** - Automatically resize oversized images before Claude API submission to prevent 2000px dimension limit errors.
-
-**Key Features:**
-- Pre-submission image resizing
-- Maintains aspect ratio
-- Preserves transparency
-- Quality optimization
-
-**Install:**
-```bash
-claude plugin install auto-resize-images@tommymorgan
-```
-
-**[Full Documentation →](./auto-resize-images/README.md)**
 
 ---
 
