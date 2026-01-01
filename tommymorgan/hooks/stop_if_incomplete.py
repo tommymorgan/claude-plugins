@@ -4,11 +4,10 @@ Stop Hook - Work Completion Enforcement
 
 Enforces that work sessions are complete before stopping Claude Code.
 Blocks stop if plan has TODO scenarios remaining (< 100% complete).
-Allows override via TOMMYMORGAN_ALLOW_INCOMPLETE_STOP environment variable.
+No exceptions - complete the work or use Ctrl+C to force quit.
 """
 
 import json
-import os
 import re
 import sys
 from pathlib import Path
@@ -111,20 +110,6 @@ def make_stop_decision(completion: Optional[Dict[str, int]]) -> Dict[str, Any]:
     """
     # Allow stop if no active work session detected
     if completion is None:
-        return {"stopDecision": "allow"}
-
-    # Check for override environment variable
-    allow_override = os.environ.get("TOMMYMORGAN_ALLOW_INCOMPLETE_STOP", "").lower() in [
-        "true",
-        "1",
-        "yes",
-    ]
-
-    if allow_override:
-        # Log override usage to stderr
-        sys.stderr.write(
-            "WARNING: Stopped with incomplete work (override used)\n"
-        )
         return {"stopDecision": "allow"}
 
     # Block if work is incomplete

@@ -219,34 +219,6 @@ class TestStopDecisions(unittest.TestCase):
         self.assertEqual(decision["stopDecision"], "allow")
 
 
-class TestOverrideMechanism(unittest.TestCase):
-    """Test override via environment variable"""
-
-    def test_allows_override_via_env_var(self):
-        """Should allow stop with TOMMYMORGAN_ALLOW_INCOMPLETE_STOP=true"""
-        from stop_if_incomplete import make_stop_decision
-
-        completion = {"completion_percentage": 40, "todo_count": 3, "done_count": 2}
-
-        with patch.dict(os.environ, {"TOMMYMORGAN_ALLOW_INCOMPLETE_STOP": "true"}):
-            decision = make_stop_decision(completion)
-
-        self.assertEqual(decision["stopDecision"], "allow")
-
-    def test_logs_override_usage(self):
-        """Should log warning when override is used"""
-        from stop_if_incomplete import make_stop_decision
-
-        completion = {"completion_percentage": 40, "todo_count": 3, "done_count": 2}
-
-        with patch.dict(os.environ, {"TOMMYMORGAN_ALLOW_INCOMPLETE_STOP": "true"}):
-            with patch("sys.stderr") as mock_stderr:
-                decision = make_stop_decision(completion)
-
-        # Should write warning to stderr
-        self.assertTrue(mock_stderr.write.called)
-
-
 class TestPathValidation(unittest.TestCase):
     """Test plan file path validation"""
 
