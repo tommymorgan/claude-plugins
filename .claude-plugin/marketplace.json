@@ -14,7 +14,7 @@
 			"name": "tommymorgan",
 			"source": "./tommymorgan",
 			"description": "Comprehensive development workflow: planning with expert review, autonomous TDD execution, smart testing, and root-cause debugging",
-			"version": "1.0.0",
+			"version": "1.0.1",
 			"category": "workflow"
 		}
 	]
