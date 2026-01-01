@@ -1,7 +1,7 @@
 {
 	"name": "tommymorgan",
-	"version": "0.1.0",
-	"description": "Git-based plan tracking with autonomous TDD execution and verified task completion",
+	"version": "1.0.0",
+	"description": "Comprehensive development workflow: planning with expert review, autonomous TDD execution, smart testing, and root-cause debugging",
 	"author": {
 		"name": "Tommy Morgan",
 		"email": "tommy@tommymorgan.com",
@@ -11,10 +11,13 @@
 	"license": "MIT",
 	"keywords": [
 		"workflow",
-		"tdd",
 		"planning",
-		"verification",
+		"testing",
+		"debugging",
+		"tdd",
+		"gherkin",
 		"autonomous",
-		"gherkin"
+		"quality-gates",
+		"expert-review"
 	]
 }

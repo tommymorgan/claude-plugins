@@ -80,6 +80,16 @@ Root cause identified. Now proceeding to fix...
 
 [More plugins coming soon]
 
+## Publishing Changes
+
+To push plugin updates to GitHub:
+
+```bash
+git push claude-plugins main
+```
+
+This publishes changes to the public marketplace at https://github.com/tommymorgan/claude-plugins.
+
 ## Contributing
 
 This is a personal marketplace. Suggestions welcome via GitHub issues.
