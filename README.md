@@ -1,6 +1,6 @@
 # Tommy's Claude Code Marketplace
 
-A curated collection of Claude Code plugins for debugging, development workflow, and productivity.
+Personal collection of Claude Code plugins for disciplined development workflows.
 
 ## Installation
 
@@ -15,74 +15,56 @@ claude plugin marketplace add tommymorgan/claude-plugins
 ### Installing Plugins
 
 ```bash
-claude plugin install <plugin-name>@tommy-marketplace
+claude plugin install <plugin-name>@tommymorgan
 ```
 
 ## Available Plugins
 
-### root-cause-analysis v0.1.0
+### [tommymorgan](./tommymorgan/README.md) v1.1.1
 
-**Category:** Debugging
+**Development Workflow** - Comprehensive workflow plugin enforcing disciplined planning, autonomous TDD execution, expert code review, and complete task completion.
 
-Prevents speculation-driven debugging by enforcing the five whys methodology to identify root causes before attempting solutions.
-
-**Problem it solves:** Claude Code tends to jump to speculative solutions without identifying actual root causes, leading to wasted effort, potentially harmful changes, and never-ending fix loops.
+**Key Features:**
+- Gherkin-based planning with TODO/DONE tracking
+- Autonomous TDD execution with quality gates
+- Expert plan review (7 domain experts with context-aware filtering)
+- Work completion enforcement (stop hook blocks partial completion)
+- Root cause analysis (five whys methodology)
+- Plan-aware testing (API, browser, CLI)
 
 **Install:**
 ```bash
-claude plugin install root-cause-analysis@tommy-marketplace
+claude plugin install tommymorgan@tommymorgan
 ```
 
-**Usage:**
+**[Full Documentation →](./tommymorgan/README.md)**
 
-*Automatic (Recommended):*
-```
-You: "I'm getting an error in my API"
-Claude: [Automatically performs root cause analysis before attempting fixes]
-```
+---
 
-*Manual:*
-```
-/root-cause-analysis:debug:root-cause [problem description]
-```
+### [auto-resize-images](./auto-resize-images/README.md) v1.0.0
 
-**Components:**
-- **Skill:** five-whys-methodology - Triggers on problem keywords
-- **Agent:** root-cause-analyzer - Autonomous five whys investigation
-- **Command:** /root-cause-analysis:debug:root-cause - Manual invocation
+**Image Processing** - Automatically resize oversized images before Claude API submission to prevent 2000px dimension limit errors.
 
-**Example workflow:**
-```
-User: "Login is broken, need to fix it"
+**Key Features:**
+- Pre-submission image resizing
+- Maintains aspect ratio
+- Preserves transparency
+- Quality optimization
 
-Claude: Investigating root cause...
-
-Investigation Level 1
-Observation: Login returning 500 errors
-Evidence: [reads error logs and code]
-Finding: Database connection timeout
-Next Question: Why is database timing out?
-
-Investigation Level 2
-Observation: Database connection timeout
-Evidence: [checks config and metrics]
-Finding: Connection pool exhausted (5 connections, 50 concurrent requests)
-Next Question: Why is pool exhausted?
-
-Investigation Level 3
-Observation: Pool exhausted by concurrent requests
-Evidence: [reads session handler code]
-Finding: Connections not being released - missing connection.release() call
-Root Cause: Missing connection.release() in session handler
-
-Root cause identified. Now proceeding to fix...
+**Install:**
+```bash
+claude plugin install auto-resize-images@tommymorgan
 ```
 
-[More plugins coming soon]
+**[Full Documentation →](./auto-resize-images/README.md)**
 
-## Publishing Changes
+---
 
-Plugin development happens in `homelab/tools/claude-plugins/`. To publish to GitHub:
+## Plugin Development
+
+Plugin development happens in `homelab/tools/claude-plugins/`.
+
+### Publishing Changes
 
 **1. Sync files to publish repository:**
 ```bash
@@ -98,10 +80,13 @@ git push origin main
 ```
 
 **Why separate repos?**
+
 The homelab repository contains secrets in its git history. Git subtree push includes parent commits, which would expose those secrets to GitHub's secret scanning. Using a separate publish repository ensures clean history without secrets.
 
-**Publish repo location:** `~/src/claude-plugins-publish/`
-**Public marketplace:** https://github.com/tommymorgan/claude-plugins
+**Locations:**
+- **Development**: `~/src/homelab/tools/claude-plugins/`
+- **Publish**: `~/src/claude-plugins-publish/`
+- **Public**: https://github.com/tommymorgan/claude-plugins
 
 ## Contributing
 
@@ -109,9 +94,9 @@ This is a personal marketplace. Suggestions welcome via GitHub issues.
 
 ## Repository
 
-- **GitHub:** https://github.com/tommymorgan/claude-plugins
-- **Issues:** https://github.com/tommymorgan/claude-plugins/issues
+- **GitHub**: https://github.com/tommymorgan/claude-plugins
+- **Issues**: https://github.com/tommymorgan/claude-plugins/issues
 
 ## License
 
-See LICENSE file. Individual plugins may have different licenses - check each plugin's README.
+See individual plugin READMEs for license information. Most plugins are MIT licensed.

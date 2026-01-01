@@ -1,102 +1,319 @@
 # tommymorgan
 
-Git-based plan tracking with autonomous TDD execution and verified task completion.
+**Version**: 1.1.1
+**Category**: Development Workflow
+**License**: MIT
 
-## Overview
+Comprehensive development workflow plugin enforcing disciplined planning, autonomous TDD execution, expert code review, and complete task completion.
 
-This plugin makes the git repository the source of truth for project planning. Plans are markdown files with Gherkin requirements and verification commands that prove task completion. Claude can pick up any plan in a new session and accurately determine what's been done.
+## Philosophy
 
-## Features
+**Bulldog Persistence + Border Collie Intelligence**
 
-- **Gherkin Requirements**: Capture requirements as executable scenarios
-- **Verification-Based Completion**: Each task has a command that proves it's done
-- **Autonomous TDD**: Claude executes tasks using red-green-refactor cycle
-- **Code Review Gates**: Every commit reviewed before merging
-- **Worktree Integration**: Each feature gets an isolated git worktree
-- **Session-Resilient**: Plans survive across Claude sessions
-
-## Commands
-
-### `/tommymorgan:plan "description"`
-
-Create a new plan via brainstorming.
-
-1. Asks questions one at a time to understand requirements
-2. Generates Gherkin scenarios for all requirements
-3. Creates tasks with verification commands
-4. Writes plan to `<project>/plans/YYYY-MM-DD-<slug>.md`
-5. Creates feature worktree and switches to it
-
-### `/tommymorgan:status`
-
-Verify task completion and show progress.
-
-1. Runs all verification commands in the plan
-2. Updates task statuses (pending → complete)
-3. Reports: "X/Y tasks complete. Next: <task>"
-
-### `/tommymorgan:work`
-
-Execute plan autonomously until complete.
-
-1. Runs verification sweep first
-2. For each incomplete task:
-   - Writes failing test (red)
-   - Implements until test passes (green)
-   - Requests code review (loop until approved)
-   - Commits with conventional commit message
-   - Updates plan status
-3. Uses root-cause-analysis before marking anything blocked
-
-## Plan File Format
-
-```markdown
-# Feature: User Authentication
-
-**Created**: 2024-12-15
-**Branch**: feat/user-auth
-**Goal**: Users can register and log in
-
-## Requirements
-
-Feature: User Registration
-  Scenario: Successful registration
-    Given I am a new user
-    When I register with valid email and password
-    Then my account should be created
-
-## Tasks
-
-### 1. Create user model
-**Verify**: `pnpm test src/models/user.test.ts`
-**Status**: pending
-
-### 2. Add registration endpoint
-**Verify**: `pnpm test src/routes/register.test.ts`
-**Status**: pending
-
-## Notes
-- Design decisions and context
-```
-
-## Prerequisites
-
-This plugin requires:
-
-```bash
-# Required plugins
-cc plugins add superpowers@superpowers-marketplace
-cc plugins add pr-review-toolkit@claude-code-plugins
-cc plugins add root-cause-analysis@tommymorgan
-```
+This plugin enforces discipline without being obstructive. It won't let you take shortcuts that create technical debt, but it applies excellent autonomous judgment to get work done right.
 
 ## Installation
 
 ```bash
-# From tommymorgan marketplace
-cc plugins add tommymorgan@tommymorgan
+claude plugin install tommymorgan@tommymorgan
 ```
+
+## Commands
+
+### Planning
+
+#### `/tommymorgan:plan`
+Create structured Gherkin-based feature plans.
+
+**Output**: `plans/YYYY-MM-DD-<feature-name>.md`
+
+Plans contain:
+- User Requirements (Gherkin scenarios from user perspective)
+- Technical Specifications (implementation scenarios)
+- Scenarios marked with `<!-- TODO -->` or `<!-- DONE -->`
+
+#### `/tommymorgan:work <plan-file>`
+Execute plan autonomously using TDD until 100% complete.
+
+**Workflow**:
+1. Verify local dev environment works
+2. For each TODO scenario:
+   - Write failing test (RED)
+   - Implement until test passes (GREEN)
+   - Refactor if needed
+   - Run code review gate (must approve before continuing)
+   - Commit incrementally
+3. Run exploratory testing gate
+4. Squash commits into single clean commit
+5. Mark all scenarios as DONE
+
+**Quality Gates** (mandatory):
+- Code review: Every scenario reviewed before next one starts
+- Exploratory testing: Full validation before completion
+- All tests must pass
+- No stopping until 100% complete
+
+#### `/tommymorgan:status [plan-file]`
+Check scenario completion progress.
+
+**Output**:
+```
+Progress: 8/12 scenarios complete (67% done)
+
+User Requirements:
+✅ User can register with email
+✅ User can login with credentials
+⏳ User can refresh JWT token
+
+Technical Specifications:
+✅ Database stores user records
+⏳ API validates JWT signatures
+...
+
+Next scenario: User can refresh JWT token
+```
+
+#### `/tommymorgan:review-plan <plan-file>`
+Independent plan review with 7 domain experts providing context-aware, prioritized recommendations.
+
+**Expert Panel**:
+1. **Marty Cagan** (Product Strategy) - User outcomes vs implementation details
+2. **Dave Farley** (Continuous Delivery) - Testability, automation, deployability
+3. **OWASP Security Expert** - Security (context-aware filtering)
+4. **Jakob Nielsen** (Usability) - User experience, clarity, error messaging
+5. **Martin Kleppmann** (Distributed Systems) - Performance (context-aware)
+6. **Eric Evans** (Domain-Driven Design) - Domain modeling, ubiquitous language
+7. **Google SRE Expert** - Operations (context-aware filtering)
+
+**Context-Aware Filtering**: Experts adjust recommendations based on plan type:
+- Hook vs API vs UI vs Database
+- CLI tool vs production service
+- Simple tool vs data-intensive system
+
+**Output**:
+- Critical/High/Medium priority recommendations
+- Expert debates and consensus for conflicts
+- Specific scenario references
+- Concrete improvement suggestions
+
+**Performance**: Completes in <30 seconds
+
+### Testing
+
+#### `/tommymorgan:test`
+Plan-aware exploratory testing.
+
+Automatically selects testing strategy:
+- **API testing**: REST/GraphQL endpoint validation
+- **Browser testing**: Functional, visual, accessibility, performance
+- **CLI testing**: Command validation, output correctness, exit codes
+
+### Debugging
+
+#### `/tommymorgan:root-cause`
+Systematic root cause analysis using five whys methodology.
+
+**Prevents**: Speculation-driven debugging, endless fix loops, harmful changes
+
+**Process**:
+1. Observe the problem
+2. Gather evidence (logs, code, metrics)
+3. Ask "why?" until root cause found (typically 5 levels deep)
+4. Only then attempt fixes
+
+## Hooks
+
+### Stop Hook (Work Completion Enforcement)
+
+**Purpose**: Enforces complete work sessions - no partial completion.
+
+**Behavior**:
+- Searches for plan files in current and parent directories (up to 3 levels)
+- Calculates completion: `done_count / (todo_count + done_count)`
+- **Blocks stopping** if completion < 100%
+- **Allows stopping** if completion = 100% or no plan found
+
+**Error Message**:
+```
+Work incomplete: 3/12 scenarios TODO (75%)
+```
+
+**No Override**: Strictly enforces completion. Emergency exits:
+1. Complete the work (mark scenarios DONE)
+2. Use Ctrl+C to force quit
+
+**Performance**: Executes in <500ms
+
+**Safety**:
+- Path validation prevents traversal attacks
+- Graceful failure on malformed plans
+- Defensive defaults (allow stop on errors)
+
+## Plan File Format
+
+```markdown
+# Feature: User Authentication API
+
+**Created**: 2026-01-01
+**Plugin**: tommymorgan
+**Goal**: Add JWT-based authentication for API endpoints
+
+## User Requirements
+
+<!-- TODO -->
+Scenario: User registers with email
+  Given I am a new user
+  When I POST to /api/auth/register with email and password
+  Then I receive a 201 response with user ID
+  And I receive a JWT access token
+
+<!-- DONE -->
+Scenario: User logs in with credentials
+  Given I am a registered user
+  When I POST to /api/auth/login with valid credentials
+  Then I receive a JWT access token
+
+## Technical Specifications
+
+<!-- TODO -->
+Scenario: JWT tokens expire after 7 days
+  Given a user has a valid JWT token
+  When 7 days have passed
+  Then the token should be rejected as expired
+  And API should return 401 Unauthorized
+
+## Notes
+
+**Design Decisions**:
+- Using HS256 for JWT signing (symmetric, simpler for single server)
+- 7-day token expiration (balance security vs UX)
+- Refresh tokens stored in database, access tokens stateless
+```
+
+## Workflow Example
+
+```bash
+# 1. Create a plan
+/tommymorgan:plan
+You: "Add user authentication API with JWT tokens"
+Claude: [Creates structured plan with User Requirements and Technical Specs]
+
+# 2. Review the plan (optional)
+/tommymorgan:review-plan plans/2026-01-01-auth-api.md
+Claude:
+## Critical Issues
+[Cagan] Missing scenario: User sees helpful error for invalid credentials
+[OWASP] Scenario needed: System prevents brute force login attempts
+...
+
+# 3. Execute the plan
+/tommymorgan:work plans/2026-01-01-auth-api.md
+Claude:
+Implementing scenario: User registers with email
+- Writing failing test... [RED]
+- Implementing registration endpoint... [GREEN]
+- Running code review gate... [APPROVED]
+- Committed: feat(auth): add user registration endpoint
+
+Implementing scenario: JWT tokens expire after 7 days
+- Writing failing test... [RED]
+...
+All scenarios complete! Squashing commits...
+
+# 4. Check progress anytime
+/tommymorgan:status
+Claude:
+Progress: 12/12 scenarios complete (100% done)
+All scenarios implemented and tested ✓
+
+# Try to stop early (will be blocked)
+<Ctrl+D>
+Claude: Work incomplete: 4/12 scenarios TODO (67%)
+[Stop blocked - complete the work or use Ctrl+C]
+```
+
+## Components
+
+### Skills
+- `plan-format` - Gherkin plan structure and formatting
+- `tdd-execution` - Red-Green-Refactor workflow
+- `verification-sweep` - Test execution and validation
+- `api-testing-patterns` - REST/GraphQL testing patterns
+- `browser-testing-patterns` - Web UI testing with Playwright
+- `cli-testing-patterns` - CLI tool testing patterns
+- `five-whys-methodology` - Root cause analysis process
+
+### Agents
+- `api-explorer` - Autonomous API endpoint testing
+- `browser-explorer` - Autonomous browser-based testing
+- `cli-tester` - Autonomous CLI tool testing
+- `root-cause-analyzer` - Autonomous five whys investigation
+
+### Hooks
+- **Stop Hook**: Enforces work completion before stopping
+- **Pre-Push Squash**: Verifies commits are squashed before push
+- **Post-Push Cleanup**: Cleanup after successful push
+
+## Design Principles
+
+1. **No Shortcuts**: Stop hook enforces completion - no override mechanism
+2. **Quality Gates**: Code review and testing gates are mandatory, not optional
+3. **Evidence-Based**: Root cause analysis before fixes (no speculation)
+4. **Incremental**: TDD with small commits, then squash at end
+5. **Autonomous**: Agents handle complex tasks independently
+6. **Context-Aware**: Experts adjust to plan type (API vs hook vs CLI)
+7. **Bulldog Persistence**: Don't give up or take shortcuts
+8. **Border Collie Intelligence**: Excellent judgment and autonomy
+
+## Testing
+
+The plugin includes comprehensive test suites:
+- `planning/commands/test_review_plan.py` - 13 tests for plan parsing and context detection
+- `hooks/test_stop_if_incomplete.py` - 18 tests for stop hook enforcement
+- `hooks/test_pre_push_squash.py` - Tests for pre-push verification
+
+Run tests:
+```bash
+cd tools/claude-plugins/tommymorgan
+python3 -m pytest
+```
+
+## Requirements
+
+**Python 3.8+** for hooks
+
+**Recommended plugins** (not required):
+- `pr-review-toolkit` - Additional code review agents
+- `superpowers` - Enhanced skill system
+
+## Changelog
+
+### v1.1.1 (2026-01-01)
+- **Removed**: Override mechanism for stop hook
+- Stop hook now strictly enforces completion
+- No `TOMMYMORGAN_ALLOW_INCOMPLETE_STOP` env var
+
+### v1.1.0 (2026-01-01)
+- **Added**: `/review-plan` command with 7 domain experts
+- **Added**: Stop hook for work completion enforcement
+- Expert review with context-aware filtering
+- Expert debates for conflicting recommendations
+- Prioritized recommendations (Critical/High/Medium)
+
+### v1.0.2 (2025-12-31)
+- **Added**: Pre-push squash verification hook
+- **Added**: Post-push cleanup hook
+
+## Contributing
+
+This is part of the tommymorgan personal marketplace. Suggestions welcome via GitHub issues.
 
 ## License
 
-MIT
+MIT License - See LICENSE file for details
+
+## Repository
+
+- **GitHub**: https://github.com/tommymorgan/claude-plugins
+- **Issues**: https://github.com/tommymorgan/claude-plugins/issues
+- **Plugin Directory**: `tommymorgan/`
