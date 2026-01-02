@@ -111,7 +111,33 @@ Use TodoWrite to track implementation of this scenario.
    - **Update documentation** (user, developer, API docs as needed)
    - Commit incrementally (each green cycle)
 
-3. **If blocked after reasonable attempts:**
+3. **Update living specification** (automatic):
+   - Parse scenario metadata from plan:
+     ```gherkin
+     # Living: <project>/specs/<file>.feature::<scenario-name>
+     # Action: creates|replaces|extends|removes|deprecates
+     # Status: TODO
+     # Living updated: NO
+     ```
+   - If `Living:` is not "none":
+     - Load the .feature file
+     - Apply the action:
+       - **creates**: Append new scenario to file (preserve @user/@technical tag)
+       - **replaces**: Find and replace existing scenario completely
+       - **extends**: Add new Given/When/Then steps to existing scenario
+       - **removes**: Delete scenario from file
+       - **deprecates**: Add @deprecated tag and comment
+     - Update plan metadata:
+       ```gherkin
+       # Status: DONE
+       # Living updated: YES
+       ```
+     - Commit living spec update
+   - Enforce strict sequential:
+     - Before starting next scenario, verify current has `Living updated: YES`
+     - If NO, halt with error
+
+4. **If blocked after reasonable attempts:**
    - **NEVER guess at fixes**
    - **ALWAYS invoke `/tommymorgan:root-cause`:**
      ```typescript
@@ -131,7 +157,7 @@ Use TodoWrite to track implementation of this scenario.
    - Apply fix based on root cause
    - If unfixable, mark scenario blocked
 
-4. **Refactor** if needed
+5. **Refactor** if needed
 
 ### Step 6: Code Review Gate
 
@@ -187,7 +213,7 @@ Check if more TODO scenarios exist:
 
 ```typescript
 Task({
-  subagent_type: "tommymorgan:test",
+  subagent_type: "tommymorgan:exploratory-tester",
   description: "Validate implementation against plan",
   prompt: `Run plan-aware exploratory testing.
 

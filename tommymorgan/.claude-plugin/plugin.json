@@ -1,7 +1,7 @@
 {
 	"name": "tommymorgan",
-	"version": "1.2.0",
-	"description": "Comprehensive development workflow: planning with expert review, autonomous TDD execution, smart testing, root-cause debugging, and automatic image preprocessing",
+	"version": "2.0.0",
+	"description": "Comprehensive development workflow with living documentation: planning with expert review, autonomous TDD execution with automatic spec updates, smart testing, coverage analysis, documentation generation, and root-cause debugging",
 	"author": {
 		"name": "Tommy Morgan",
 		"email": "tommy@tommymorgan.com",
@@ -20,7 +20,11 @@
 		"quality-gates",
 		"expert-review",
 		"image-processing",
-		"preprocessing"
+		"preprocessing",
+		"living-documentation",
+		"documentation-generation",
+		"coverage-analysis",
+		"evolutionary-docs"
 	],
 	"commands": [
 		"./planning/commands/plan.md",
@@ -28,7 +32,10 @@
 		"./planning/commands/status.md",
 		"./planning/commands/review-plan.md",
 		"./testing/commands/test.md",
-		"./debugging/commands/root-cause.md"
+		"./debugging/commands/root-cause.md",
+		"./migration/commands/migrate-to-living-specs.md",
+		"./migration/commands/generate-docs.md",
+		"./migration/commands/coverage-analysis.md"
 	],
 	"skills": [
 		"./planning/skills/plan-format",
@@ -43,6 +50,7 @@
 		"./testing/agents/api-explorer.md",
 		"./testing/agents/browser-explorer.md",
 		"./testing/agents/cli-tester.md",
+		"./testing/agents/exploratory-tester.md",
 		"./debugging/agents/root-cause-analyzer.md"
 	]
 }

@@ -78,7 +78,73 @@ Cover:
 - Accessibility (table stakes)
 - Performance (table stakes)
 
-### Step 4: Automated Quality Checklist
+### Step 4: Interactive Reconciliation with Living Specs
+
+**Check for existing living specs:**
+
+```bash
+# Check if project has specs/ directory
+if [ -d "<project>/specs" ]; then
+  # Load existing .feature files
+  ls <project>/specs/*.feature 2>/dev/null
+fi
+```
+
+**If living specs exist:**
+
+For each drafted scenario (both User Requirements and Technical Specifications):
+
+1. **Load existing scenarios** from all .feature files in specs/
+2. **Find similar scenarios** using semantic similarity (from migration tool):
+   - Compare scenario names and steps
+   - Use 0.8 similarity threshold
+   - Show matches to user
+
+3. **Present reconciliation options** using AskUserQuestion:
+   ```
+   Your drafted scenario: "User logs in successfully"
+
+   Found similar scenario in specs/authentication.feature:
+     "User authenticates with valid credentials"
+     Similarity: 0.85
+
+   How should this scenario relate to the living spec?
+
+   Options:
+   - creates: This is a new, independent scenario
+   - replaces: This completely replaces the existing scenario
+   - extends: This adds to the existing scenario
+   - deprecates: This marks the old scenario as obsolete
+   - none: These are not related (use different name)
+   ```
+
+4. **Record metadata** as comments before each scenario:
+   ```gherkin
+   # Living: <project>/specs/<file>.feature::<scenario-name>
+   # Action: creates|replaces|extends|removes|deprecates
+   # Status: TODO
+   # Living updated: NO
+   Scenario: <scenario-text>
+   ```
+
+**If no living specs exist:**
+
+Skip reconciliation - all scenarios will have:
+```gherkin
+# Living: none (initial implementation)
+# Action: creates
+# Status: TODO
+# Living updated: NO
+Scenario: <scenario-text>
+```
+
+**Benefits:**
+- Maintains consistent naming across plans
+- Makes relationships explicit
+- Work tool knows exactly what to update
+- Prevents duplicate/conflicting scenarios
+
+### Step 5: Automated Quality Checklist
 
 Before expert review, validate plan against checklist:
 
@@ -101,7 +167,7 @@ Before expert review, validate plan against checklist:
    - Accessibility considerations present
    - Performance considerations present
 
-### Step 5: Expert Review Panel
+### Step 6: Expert Review Panel
 
 Invoke expert reviewers to validate and improve the plan. Experts debate conflicts autonomously and reach consensus.
 
@@ -170,7 +236,7 @@ Scenario: Invalid credentials show error
 
 Scenarios ARE the plan. Tests prove scenarios are satisfied. No duplicate tracking needed.
 
-### Step 7: Local Development Environment Check
+### Step 8: Local Development Environment Check
 
 Before finalizing plan, verify local dev environment exists or add setup scenarios:
 
@@ -190,7 +256,7 @@ Before finalizing plan, verify local dev environment exists or add setup scenari
    - Local dev scenarios come first
    - Work command will verify local dev works before starting
 
-### Step 8: Write Plan File
+### Step 9: Write Plan File
 
 Create the plan file at:
 `<project>/plans/YYYY-MM-DD-<slug>.md`
@@ -233,7 +299,7 @@ Create the plans directory if it doesn't exist:
 mkdir -p <project>/plans
 ```
 
-### Step 9: Report Completion
+### Step 10: Report Completion
 
 After creating the plan, report:
 
