@@ -26,6 +26,34 @@ Work through all scenarios in a plan using TDD with comprehensive quality gates.
 - **Quality Gates**: Code review and exploratory testing before completion
 - **Documentation First-Class**: Update docs alongside code
 
+## Completion Criteria
+
+**The work command ONLY stops when ALL three conditions are met:**
+
+1. **All scenarios DONE**: Every scenario in plan marked `<!-- DONE -->`
+2. **All tests passing**: Full test suite passes in local development
+3. **All layers functional**: Every application layer validated and working
+
+**Before ANY potential stopping point, check completion criteria:**
+```
+function checkCompletionCriteria():
+  scenarios_done = all scenarios marked DONE in plan
+  tests_passing = test suite exits 0 in local dev
+  layers_functional = all detected layers validated successfully
+
+  return scenarios_done AND tests_passing AND layers_functional
+```
+
+**If `checkCompletionCriteria()` returns false → continue execution**
+**If `checkCompletionCriteria()` returns true → report completion and stop**
+
+**NEVER:**
+- Ask "should I continue?"
+- Mention token usage as stopping reason
+- Ask "what should I do next?"
+- Say "this is separate work"
+- Rationalize incomplete work as "done"
+
 ## Workflow
 
 ### Step 1: Initialization
@@ -50,6 +78,33 @@ If worktree selected:
 - Parse User Requirements section
 - Parse Technical Specifications section
 - Understand all scenarios
+
+**Detect application architecture:**
+```
+function detectArchitecture():
+  layers = []
+
+  // Check project files
+  if exists(package.json) → examine dependencies for: databases, APIs, UI frameworks, build tools
+  if exists(pyproject.toml or requirements.txt) → examine for: databases, web frameworks, CLI tools
+
+  // Check directory structure
+  if exists(src/db or migrations or schema) → add 'database' layer
+  if exists(src/api or routes or controllers) → add 'api' layer
+  if exists(src/ui or components or views) → add 'ui' layer
+  if exists(src/cli or __main__.py or bin/) → add 'cli' layer
+
+  // Check plan scenarios for mentioned layers
+  scan scenarios for keywords: "database", "API", "UI", "CLI", "build", "library"
+
+  // Determine build vs library
+  if has build process (vite, webpack, tsc, etc.) → add 'build-output' layer
+  if exports modules (library) → add 'library' layer
+
+  return layers
+```
+
+Store detected layers for validation later.
 
 ### Step 2: Verify Local Development Environment
 
@@ -185,31 +240,143 @@ Respond: APPROVED or NEEDS_CHANGES with details.`
 ```
 
 **If NEEDS_CHANGES:**
-1. Address feedback (with bulldog persistence!)
-2. Re-run tests
-3. Request another review
-4. Loop until APPROVED
-
-**If still failing after 3 iterations:**
-- Invoke `/tommymorgan:root-cause`
-- Determine if blocked
+1. Invoke `/tommymorgan:root-cause` to analyze feedback
+2. Address feedback based on root cause analysis
+3. Re-run tests
+4. Request another review
+5. If still NEEDS_CHANGES, repeat steps 1-4
+6. After 3 root-cause-driven iterations: Block and require user intervention
 
 **Hooks will run automatically:**
 - Linting
 - Type checking
 - Formatting
 
-### Step 7: Continue or Test
+### Step 7: Check Progress
 
 **After code review approves:**
 
-Check if more TODO scenarios exist:
-- **More scenarios?** → Go to Step 4 (next scenario)
-- **All scenarios TODO → DONE?** → Continue to Step 8
+Run `checkCompletionCriteria()`:
+- All scenarios DONE?
+- All tests passing?
+- All layers functional?
 
-### Step 8: Exploratory Testing Gate
+**If ANY condition is false:**
+- Identify what's incomplete
+- **More scenarios TODO?** → Go to Step 4 (next scenario)
+- **Tests not run/failing?** → Run tests, fix failures, retry
+- **Layers not validated?** → Continue to Step 8
 
-**Before claiming completion**, validate with exploratory testing:
+**If ALL conditions true:**
+- Skip to Step 10 (already complete)
+
+**DO NOT ask user - continue autonomously**
+
+### Step 8: Layer Validation Gate
+
+**Before exploratory testing**, validate all detected layers:
+
+```
+function validateLayers(detected_layers):
+  for each layer in detected_layers:
+    validateLayer(layer)
+
+  validateIntegration(detected_layers)
+
+function validateLayer(layer_type):
+  switch layer_type:
+    case 'database':
+      - Verify migrations applied (check migration status)
+      - Execute sample queries (SELECT, INSERT if appropriate)
+      - Confirm schema matches expected structure
+
+    case 'api':
+      - Start API server in local dev
+      - Test endpoints respond with correct status codes
+      - Verify response data structure and content
+      - Test error cases return appropriate errors
+
+    case 'ui':
+      - Start UI dev server
+      - Verify pages/components render
+      - Test interactivity (clicks, forms, navigation)
+      - Verify data displays correctly
+
+    case 'cli':
+      - Execute command with valid inputs
+      - Verify expected output
+      - Test error cases
+      - Confirm exit codes correct
+
+    case 'library':
+      - Verify exports are accessible
+      - Test imports in sample code
+      - Confirm types/interfaces work
+
+    case 'build-output':
+      - Run build process
+      - Verify build succeeds (exit 0)
+      - Confirm artifacts generated
+      - Check artifacts are valid
+
+function validateIntegration(layers):
+  // Identify integration points and verify with concrete methods
+
+  if 'database' in layers and 'api' in layers:
+    - Start API server in local dev
+    - Execute API endpoint that queries database
+    - Verify API response contains expected database data
+    - Check database query logs show correct SQL execution
+    - Confirm data transformation from DB format to API format
+
+  if 'api' in layers and 'ui' in layers:
+    - Start both API and UI servers in local dev
+    - Navigate UI to page that fetches from API
+    - Verify network requests show API calls (browser DevTools or logs)
+    - Verify UI displays correct API response data
+    - Test error case: API returns error, UI shows error message
+
+  if 'database' in layers and 'ui' in layers:
+    - Execute end-to-end scenario: UI interaction → API call → DB operation → API response → UI update
+    - Verify each layer processed the operation (check logs, network, DB)
+    - Verify final UI state reflects the database change
+    - Test reverse flow: DB change → UI reflects change (if applicable)
+
+  // Test realistic user scenarios that span multiple layers
+  - Extract key user flows from plan scenarios
+  - For each flow: Execute as if user performed it
+  - Verify data flows correctly through all layers
+  - Verify outcome matches scenario expectation
+  - Confirm no layer is bypassed or mocked
+```
+
+**If any layer validation fails:**
+- **NEVER guess at fixes**
+- **ALWAYS invoke `/tommymorgan:root-cause`:**
+  ```typescript
+  Task({
+    subagent_type: "tommymorgan:root-cause-analyzer",
+    description: "Analyze layer validation failure",
+    prompt: `Root cause analysis:
+
+    Layer: <layer type>
+    Validation failure: <what failed>
+    Evidence: <error messages, logs>
+
+    Use five-whys methodology.
+    Provide evidence-based analysis.`
+  })
+  ```
+- Apply fix based on root cause
+- Retry validation
+- Apply retry logic (max 3 attempts with different root cause approaches)
+- After 3 failed attempts: Block and require user intervention
+
+**Only proceed when all layers validated.**
+
+### Step 9: Exploratory Testing Gate
+
+**After layer validation**, validate with exploratory testing:
 
 ```typescript
 Task({
@@ -225,14 +392,33 @@ Report any failures.`
 ```
 
 **If exploratory tests PASS:**
-- Continue to Step 9
+- Check completion criteria
+- If complete: Continue to Step 10
+- If incomplete: Return to appropriate step
 
 **If exploratory tests FAIL:**
 - Go back to Step 4
 - Fix failing scenarios
-- Retry review and testing gates
+- Retry review, layer validation, and testing gates
 
-### Step 9: Squash & Final Commit
+### Step 10: Check Completion Criteria
+
+**Before proceeding to final commit:**
+
+Run `checkCompletionCriteria()`:
+- All scenarios DONE?
+- All tests passing?
+- All layers functional?
+
+**If ANY condition is false:**
+- Identify what's incomplete
+- Return to appropriate step to fix
+- DO NOT ask user - continue autonomously
+
+**If ALL conditions true:**
+- Continue to Step 11
+
+### Step 11: Squash & Final Commit
 
 **After all scenarios complete and tested:**
 
@@ -254,7 +440,7 @@ Report any failures.`
    Co-Authored-By: Claude Sonnet 4.5 (1M context) <noreply@anthropic.com>"
    ```
 
-### Step 10: Update Plan & Report
+### Step 12: Update Plan & Report
 
 1. **Mark all scenarios as DONE** in plan file (change `<!-- TODO -->` to `<!-- DONE -->`)
 
@@ -279,33 +465,78 @@ Report any failures.`
    Ready for deployment!
    ```
 
+## Progress Feedback
+
+**Log progress messages at key milestones:**
+- "Starting scenario X of Y: [title]"
+- "Writing tests for scenario..."
+- "Tests passing, implementing code..."
+- "Running code review..."
+- "Code review approved, continuing..."
+- "Checking completion criteria..."
+- "Completion check: X/3 criteria met (scenarios: X, tests: X, layers: X)"
+- "Validating layers: [list]"
+- "Validating [layer_type] layer..."
+- "Layer [layer_type]: PASSED"
+- "Testing integration between [layer1] and [layer2]..."
+- "Integration validation complete"
+- "Running exploratory tests..."
+- "All tests passed, all layers functional"
+
+**Messages are informational only - never wait for user response.**
+
 ## Error Handling
 
-**When verification fails:**
+**When any validation or test fails:**
+- Log: "Failure detected: [description]"
 - Invoke `/tommymorgan:root-cause` (not speculation!)
-- Apply evidence-based fixes
-- Retry with persistence
+- Apply evidence-based fix
+- Retry validation
+- Continue until fixed
 
-**When code review fails repeatedly:**
-- Invoke `/tommymorgan:root-cause`
-- Understand fundamental issue
-- Fix properly, don't work around
+**Retry logic - "exhausting options":**
+- Attempt 1: Root cause analysis → fix → retry
+- Attempt 2: Different root cause analysis → different fix → retry
+- Attempt 3: Third root cause analysis → third fix → retry
+- After 3 attempts: Block and require user intervention
 
-**When exploratory tests fail:**
-- Go back to implementation
-- Fix the actual issues
-- Don't proceed until passing
+**NEVER:**
+- Ask "is this in scope?"
+- Say "this is separate work"
+- Ask "should I fix this?"
+- Mention token usage
+- Ask "what should I do?"
 
-**Only ask user as absolute last resort** - apply excellent autonomous judgment first.
+**ALWAYS:**
+- Fix problems immediately
+- Continue autonomously
+- Apply bulldog persistence
 
 ## Important Notes
 
-- Scenarios ARE the plan - no separate task lists
-- Commit incrementally during TDD, squash at end
-- Documentation updates are mandatory, not optional
-- Local dev verification is mandatory before starting
-- Code review gate is mandatory before continuing
-- Exploratory testing gate is mandatory before completion
-- Root-cause analysis instead of guessing
-- Bulldog persistence - no shortcuts that create tech debt
-- Border Collie intelligence - excellent autonomous judgment
+- **Scenarios ARE the plan** - no separate task lists
+- **Commit incrementally** during TDD, squash at end
+- **Documentation updates** are mandatory, not optional
+- **Local dev verification** is mandatory before starting
+- **Code review gate** is mandatory before continuing
+- **Layer validation gate** is mandatory after all scenarios
+- **Exploratory testing gate** is mandatory before completion
+- **Completion criteria check** is mandatory before stopping
+- **Root-cause analysis** instead of guessing
+- **Bulldog persistence** - no shortcuts that create tech debt
+- **Border Collie intelligence** - excellent autonomous judgment
+- **Never stop for token usage** - execute to completion
+- **Fix all problems** - never ask if in scope
+
+## Local Development Definition
+
+**Local development means:**
+- Application running on developer machine (not production, not CI)
+- Local database instances (containers or host processes)
+- Locally running services (API servers, dev servers)
+- Access to localhost ports and local filesystems
+
+**Local development excludes:**
+- Remote servers
+- Production environments
+- CI/CD pipelines
