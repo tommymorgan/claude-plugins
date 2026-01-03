@@ -23,13 +23,16 @@
 			]
 		}
 	],
-	"Stop": {
-		"type": "command",
-		"command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/stop_if_incomplete.py",
-		"timeout": 5000
-	},
+	"Stop": [
+		{
+			"type": "command",
+			"command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/stop_if_incomplete.py",
+			"timeout": 5000
+		}
+	],
 	"UserPromptSubmit": [
 		{
+			"type": "command",
 			"command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/resize_images.py",
 			"timeout": 5000
 		}

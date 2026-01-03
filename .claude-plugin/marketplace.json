@@ -1,28 +1,28 @@
 {
-	"name": "tommymorgan",
-	"owner": {
-		"name": "Tommy Morgan",
-		"email": "tommy@tommymorgan.com"
-	},
-	"metadata": {
-		"description": "Tommy's curated collection of Claude Code plugins for debugging, development workflow, and productivity",
-		"version": "0.3.0",
-		"repository": "https://github.com/tommymorgan/claude-plugins"
-	},
-	"plugins": [
-		{
-			"name": "tommymorgan",
-			"source": "./tommymorgan",
-			"description": "Comprehensive development workflow: planning with expert review, autonomous TDD execution, smart testing, and root-cause debugging",
-			"version": "1.0.1",
-			"category": "workflow"
-		},
-		{
-			"name": "auto-resize-images",
-			"source": "./auto-resize-images",
-			"description": "Automatically resize oversized images before Claude API submission to prevent 2000px dimension limit errors",
-			"version": "1.0.0",
-			"category": "productivity"
-		}
-	]
+  "name": "tommymorgan",
+  "owner": {
+    "name": "Tommy Morgan",
+    "email": "tommy@tommymorgan.com"
+  },
+  "metadata": {
+    "description": "Tommy's curated collection of Claude Code plugins for debugging, development workflow, and productivity",
+    "version": "0.3.3",
+    "repository": "https://github.com/tommymorgan/claude-plugins"
+  },
+  "plugins": [
+    {
+      "name": "tommymorgan",
+      "source": "./tommymorgan",
+      "description": "Comprehensive development workflow: planning with expert review, autonomous TDD execution, smart testing, and root-cause debugging",
+      "version": "0.3.3",
+      "category": "workflow"
+    },
+    {
+      "name": "auto-resize-images",
+      "source": "./auto-resize-images",
+      "description": "Automatically resize oversized images before Claude API submission to prevent 2000px dimension limit errors",
+      "version": "1.0.0",
+      "category": "productivity"
+    }
+  ]
 }
