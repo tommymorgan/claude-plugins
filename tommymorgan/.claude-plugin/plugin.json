@@ -1,6 +1,6 @@
 {
   "name": "tommymorgan",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "Comprehensive development workflow with living documentation: planning with expert review, autonomous TDD execution with automatic spec updates, smart testing, coverage analysis, documentation generation, and root-cause debugging",
   "author": {
     "name": "Tommy Morgan",
