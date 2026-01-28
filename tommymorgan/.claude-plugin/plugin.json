@@ -1,6 +1,6 @@
 {
   "name": "tommymorgan",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Comprehensive development workflow with living documentation: planning with expert review, autonomous TDD execution with automatic spec updates, smart testing, coverage analysis, documentation generation, and root-cause debugging",
   "author": {
     "name": "Tommy Morgan",
@@ -52,5 +52,53 @@
     "./testing/agents/cli-tester.md",
     "./testing/agents/exploratory-tester.md",
     "./debugging/agents/root-cause-analyzer.md"
-  ]
+  ],
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/pre-push-squash.py",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/post-push-cleanup.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/stop_if_incomplete.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/resize_images.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
 }
