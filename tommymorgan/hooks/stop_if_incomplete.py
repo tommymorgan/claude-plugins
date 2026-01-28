@@ -100,17 +100,17 @@ def check_completion(plan_content: str) -> Dict[str, int]:
 
 def make_stop_decision(completion: Optional[Dict[str, int]]) -> Dict[str, Any]:
     """
-    Determine whether to allow or block stop based on completion.
+    Determine whether to approve or block stop based on completion.
 
     Args:
         completion: Completion info dict, or None if no plan found
 
     Returns:
-        Dict with stopDecision and optional stopDecisionReason
+        Dict with decision and optional reason
     """
-    # Allow stop if no active work session detected
+    # Approve stop if no active work session detected
     if completion is None:
-        return {"stopDecision": "allow"}
+        return {"decision": "approve"}
 
     # Block if work is incomplete
     if completion["completion_percentage"] < 100:
@@ -119,10 +119,10 @@ def make_stop_decision(completion: Optional[Dict[str, int]]) -> Dict[str, Any]:
             f"Work incomplete: {completion['todo_count']}/{total} scenarios TODO "
             f"({completion['completion_percentage']}%)"
         )
-        return {"stopDecision": "block", "stopDecisionReason": reason}
+        return {"decision": "block", "reason": reason}
 
-    # Allow stop if work is complete
-    return {"stopDecision": "allow"}
+    # Approve stop if work is complete
+    return {"decision": "approve"}
 
 
 def is_safe_path(file_path: str) -> bool:
@@ -155,13 +155,12 @@ def format_output(decision: Dict[str, Any]) -> str:
     Format stop decision as JSON for Claude Code.
 
     Args:
-        decision: Dict with stopDecision and optional stopDecisionReason
+        decision: Dict with decision and optional reason
 
     Returns:
-        JSON string with hookSpecificOutput
+        JSON string matching the Stop hook schema
     """
-    output = {"hookSpecificOutput": decision}
-    return json.dumps(output)
+    return json.dumps(decision)
 
 
 def main():
@@ -215,16 +214,16 @@ def main():
         # Log execution (optional, could add file logging here)
         # For now, just log to stderr for debugging
         sys.stderr.write(
-            f"DEBUG: Plan: {plan_file}, Decision: {decision['stopDecision']}, "
+            f"DEBUG: Plan: {plan_file}, Decision: {decision['decision']}, "
             f"Completion: {completion['completion_percentage']}%\n"
         )
 
         return 0
 
     except Exception as e:
-        # On any error, allow stop and log error
+        # On any error, approve stop and log error
         sys.stderr.write(f"ERROR in stop hook: {e}\n")
-        decision = {"stopDecision": "allow"}
+        decision = {"decision": "approve"}
         print(format_output(decision))
         return 0
 

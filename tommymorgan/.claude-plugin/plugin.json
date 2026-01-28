@@ -1,6 +1,6 @@
 {
   "name": "tommymorgan",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Comprehensive development workflow with living documentation: planning with expert review, autonomous TDD execution with automatic spec updates, smart testing, coverage analysis, documentation generation, and root-cause debugging",
   "author": {
     "name": "Tommy Morgan",
@@ -60,7 +60,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/pre-push-squash.py",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/pre_push_squash.py",
             "timeout": 30
           }
         ]

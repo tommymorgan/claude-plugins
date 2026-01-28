@@ -14,39 +14,42 @@ from unittest.mock import MagicMock, mock_open, patch
 
 
 class TestStopHookRegistration(unittest.TestCase):
-    """Test hook is properly registered in hooks.json"""
+    """Test hook is properly registered in plugin.json"""
 
-    def test_hooks_json_exists(self):
-        """Should have hooks.json file"""
-        hooks_file = Path(__file__).parent / "hooks.json"
-        self.assertTrue(hooks_file.exists(), "hooks.json should exist")
+    def test_plugin_json_exists(self):
+        """Should have plugin.json file"""
+        plugin_file = Path(__file__).parent.parent / ".claude-plugin" / "plugin.json"
+        self.assertTrue(plugin_file.exists(), "plugin.json should exist")
 
     def test_stop_hook_registered(self):
-        """Should register Stop hook in hooks.json"""
-        hooks_file = Path(__file__).parent / "hooks.json"
-        with open(hooks_file, "r") as f:
+        """Should register Stop hook in plugin.json"""
+        plugin_file = Path(__file__).parent.parent / ".claude-plugin" / "plugin.json"
+        with open(plugin_file, "r") as f:
             config = json.load(f)
 
-        self.assertIn("Stop", config, "Stop hook should be registered")
+        self.assertIn("hooks", config, "hooks should be in plugin.json")
+        self.assertIn("Stop", config["hooks"], "Stop hook should be registered")
 
     def test_stop_hook_points_to_script(self):
         """Should point to stop_if_incomplete.py script"""
-        hooks_file = Path(__file__).parent / "hooks.json"
-        with open(hooks_file, "r") as f:
+        plugin_file = Path(__file__).parent.parent / ".claude-plugin" / "plugin.json"
+        with open(plugin_file, "r") as f:
             config = json.load(f)
 
-        stop_config = config.get("Stop", {})
+        stop_hooks = config["hooks"]["Stop"]
+        stop_config = stop_hooks[0]["hooks"][0]
         self.assertIn("command", stop_config)
         self.assertIn("stop_if_incomplete.py", stop_config["command"])
 
     def test_stop_hook_has_timeout(self):
-        """Should configure timeout of 5000ms"""
-        hooks_file = Path(__file__).parent / "hooks.json"
-        with open(hooks_file, "r") as f:
+        """Should configure timeout of 5 seconds"""
+        plugin_file = Path(__file__).parent.parent / ".claude-plugin" / "plugin.json"
+        with open(plugin_file, "r") as f:
             config = json.load(f)
 
-        stop_config = config.get("Stop", {})
-        self.assertEqual(stop_config.get("timeout"), 5000)
+        stop_hooks = config["hooks"]["Stop"]
+        stop_config = stop_hooks[0]["hooks"][0]
+        self.assertEqual(stop_config.get("timeout"), 5)
 
 
 class TestWorkSessionDetection(unittest.TestCase):
@@ -197,26 +200,26 @@ class TestStopDecisions(unittest.TestCase):
 
         decision = make_stop_decision(completion)
 
-        self.assertEqual(decision["stopDecision"], "block")
-        self.assertIn("Work incomplete", decision["stopDecisionReason"])
+        self.assertEqual(decision["decision"], "block")
+        self.assertIn("Work incomplete", decision["reason"])
 
     def test_allows_stop_when_work_complete(self):
-        """Should allow stop when completion = 100%"""
+        """Should approve stop when completion = 100%"""
         from stop_if_incomplete import make_stop_decision
 
         completion = {"completion_percentage": 100, "todo_count": 0, "done_count": 5}
 
         decision = make_stop_decision(completion)
 
-        self.assertEqual(decision["stopDecision"], "allow")
+        self.assertEqual(decision["decision"], "approve")
 
     def test_allows_stop_when_no_plan_found(self):
-        """Should allow stop when no active work session detected"""
+        """Should approve stop when no active work session detected"""
         from stop_if_incomplete import make_stop_decision
 
         decision = make_stop_decision(None)
 
-        self.assertEqual(decision["stopDecision"], "allow")
+        self.assertEqual(decision["decision"], "approve")
 
 
 class TestPathValidation(unittest.TestCase):
@@ -243,30 +246,30 @@ class TestJSONOutput(unittest.TestCase):
     """Test JSON output format"""
 
     def test_outputs_valid_json_for_block(self):
-        """Should output valid JSON with stopDecision: block"""
+        """Should output valid JSON with decision: block"""
         from stop_if_incomplete import format_output
 
         decision = {
-            "stopDecision": "block",
-            "stopDecisionReason": "Work incomplete: 3/5 scenarios TODO (60%)",
+            "decision": "block",
+            "reason": "Work incomplete: 3/5 scenarios TODO (60%)",
         }
 
         output = format_output(decision)
 
         parsed = json.loads(output)
-        self.assertEqual(parsed["hookSpecificOutput"]["stopDecision"], "block")
-        self.assertIn("Work incomplete", parsed["hookSpecificOutput"]["stopDecisionReason"])
+        self.assertEqual(parsed["decision"], "block")
+        self.assertIn("Work incomplete", parsed["reason"])
 
-    def test_outputs_valid_json_for_allow(self):
-        """Should output valid JSON with stopDecision: allow"""
+    def test_outputs_valid_json_for_approve(self):
+        """Should output valid JSON with decision: approve"""
         from stop_if_incomplete import format_output
 
-        decision = {"stopDecision": "allow"}
+        decision = {"decision": "approve"}
 
         output = format_output(decision)
 
         parsed = json.loads(output)
-        self.assertEqual(parsed["hookSpecificOutput"]["stopDecision"], "allow")
+        self.assertEqual(parsed["decision"], "approve")
 
 
 if __name__ == "__main__":
