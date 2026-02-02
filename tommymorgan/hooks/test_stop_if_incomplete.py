@@ -27,7 +27,8 @@ class TestStopHookRegistration(unittest.TestCase):
         with open(hooks_file, "r") as f:
             config = json.load(f)
 
-        self.assertIn("Stop", config, "Stop hook should be registered")
+        hooks = config.get("hooks", {})
+        self.assertIn("Stop", hooks, "Stop hook should be registered")
 
     def test_stop_hook_points_to_script(self):
         """Should point to stop_if_incomplete.py script"""
@@ -35,9 +36,11 @@ class TestStopHookRegistration(unittest.TestCase):
         with open(hooks_file, "r") as f:
             config = json.load(f)
 
-        stop_hooks = config.get("Stop", [])
+        hooks = config.get("hooks", {})
+        stop_hooks = hooks.get("Stop", [])
         self.assertTrue(len(stop_hooks) > 0, "Stop hooks should not be empty")
-        stop_config = stop_hooks[0]
+        # Navigate nested structure: Stop[0].hooks[0].command
+        stop_config = stop_hooks[0].get("hooks", [{}])[0]
         self.assertIn("command", stop_config)
         self.assertIn("stop_if_incomplete.py", stop_config["command"])
 
@@ -47,9 +50,11 @@ class TestStopHookRegistration(unittest.TestCase):
         with open(hooks_file, "r") as f:
             config = json.load(f)
 
-        stop_hooks = config.get("Stop", [])
+        hooks = config.get("hooks", {})
+        stop_hooks = hooks.get("Stop", [])
         self.assertTrue(len(stop_hooks) > 0, "Stop hooks should not be empty")
-        stop_config = stop_hooks[0]
+        # Navigate nested structure: Stop[0].hooks[0].timeout
+        stop_config = stop_hooks[0].get("hooks", [{}])[0]
         self.assertEqual(stop_config.get("timeout"), 5000)
 
 
@@ -201,8 +206,8 @@ class TestStopDecisions(unittest.TestCase):
 
         decision = make_stop_decision(completion)
 
-        self.assertEqual(decision["stopDecision"], "block")
-        self.assertIn("Work incomplete", decision["stopDecisionReason"])
+        self.assertEqual(decision["decision"], "block")
+        self.assertIn("Work incomplete", decision["reason"])
 
     def test_allows_stop_when_work_complete(self):
         """Should allow stop when completion = 100%"""
@@ -212,7 +217,7 @@ class TestStopDecisions(unittest.TestCase):
 
         decision = make_stop_decision(completion)
 
-        self.assertEqual(decision["stopDecision"], "allow")
+        self.assertEqual(decision["decision"], "approve")
 
     def test_allows_stop_when_no_plan_found(self):
         """Should allow stop when no active work session detected"""
@@ -220,7 +225,7 @@ class TestStopDecisions(unittest.TestCase):
 
         decision = make_stop_decision(None)
 
-        self.assertEqual(decision["stopDecision"], "allow")
+        self.assertEqual(decision["decision"], "approve")
 
 
 class TestPathValidation(unittest.TestCase):
@@ -247,30 +252,30 @@ class TestJSONOutput(unittest.TestCase):
     """Test JSON output format"""
 
     def test_outputs_valid_json_for_block(self):
-        """Should output valid JSON with stopDecision: block"""
+        """Should output valid JSON with decision: block"""
         from stop_if_incomplete import format_output
 
         decision = {
-            "stopDecision": "block",
-            "stopDecisionReason": "Work incomplete: 3/5 scenarios TODO (60%)",
+            "decision": "block",
+            "reason": "Work incomplete: 3/5 scenarios TODO (60%)",
         }
 
         output = format_output(decision)
 
         parsed = json.loads(output)
-        self.assertEqual(parsed["hookSpecificOutput"]["stopDecision"], "block")
-        self.assertIn("Work incomplete", parsed["hookSpecificOutput"]["stopDecisionReason"])
+        self.assertEqual(parsed["hookSpecificOutput"]["decision"], "block")
+        self.assertIn("Work incomplete", parsed["hookSpecificOutput"]["reason"])
 
-    def test_outputs_valid_json_for_allow(self):
-        """Should output valid JSON with stopDecision: allow"""
+    def test_outputs_valid_json_for_approve(self):
+        """Should output valid JSON with decision: approve"""
         from stop_if_incomplete import format_output
 
-        decision = {"stopDecision": "allow"}
+        decision = {"decision": "approve"}
 
         output = format_output(decision)
 
         parsed = json.loads(output)
-        self.assertEqual(parsed["hookSpecificOutput"]["stopDecision"], "allow")
+        self.assertEqual(parsed["hookSpecificOutput"]["decision"], "approve")
 
 
 if __name__ == "__main__":

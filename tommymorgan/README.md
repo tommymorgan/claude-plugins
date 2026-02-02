@@ -1,6 +1,6 @@
 # tommymorgan
 
-**Version**: 0.4.4
+**Version**: 0.4.5
 **Category**: Development Workflow
 **License**: MIT
 
@@ -357,6 +357,9 @@ python3 -m pytest
 **No external plugin dependencies** - all functionality is self-contained.
 
 ## Changelog
+
+### v0.4.5 (2026-02-02)
+- **Fixed**: Stop hook JSON schema - changed `stopDecision: "allow"` to `decision: "approve"` per Claude Code schema
 
 ### v0.4.4 (2026-02-02)
 - **Fixed**: Updated all `specs/` references to `features/` (37 occurrences missed in v0.4.0)
