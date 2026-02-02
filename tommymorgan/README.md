@@ -1,6 +1,6 @@
 # tommymorgan
 
-**Version**: 0.4.5
+**Version**: 0.4.7
 **Category**: Development Workflow
 **License**: MIT
 
@@ -358,6 +358,12 @@ python3 -m pytest
 
 ## Changelog
 
+### v0.4.7 (2026-02-02)
+- **Fixed**: Stop hook - `decision` field goes at top-level, not inside `hookSpecificOutput`
+
+### v0.4.6 (2026-02-02)
+- **Fixed**: Stop hook - omit `decision` field to allow stop (per official Claude Code docs); only `"block"` is valid
+
 ### v0.4.5 (2026-02-02)
 - **Fixed**: Stop hook JSON schema - changed `stopDecision: "allow"` to `decision: "approve"` per Claude Code schema
 
@@ -427,3 +433,4 @@ MIT License - See LICENSE file for details
 - **GitHub**: https://github.com/tommymorgan/claude-plugins
 - **Issues**: https://github.com/tommymorgan/claude-plugins/issues
 - **Plugin Directory**: `tommymorgan/`
+

@@ -102,15 +102,18 @@ def make_stop_decision(completion: Optional[Dict[str, int]]) -> Dict[str, Any]:
     """
     Determine whether to allow or block stop based on completion.
 
+    Per Claude Code docs: omit 'decision' field to allow stop,
+    use 'decision: "block"' with reason to prevent stop.
+
     Args:
         completion: Completion info dict, or None if no plan found
 
     Returns:
-        Dict with decision and optional reason
+        Dict with decision and reason (only when blocking)
     """
-    # Allow stop if no active work session detected
+    # Allow stop if no active work session detected (omit decision field)
     if completion is None:
-        return {"decision": "approve"}
+        return {}
 
     # Block if work is incomplete
     if completion["completion_percentage"] < 100:
@@ -121,8 +124,8 @@ def make_stop_decision(completion: Optional[Dict[str, int]]) -> Dict[str, Any]:
         )
         return {"decision": "block", "reason": reason}
 
-    # Allow stop if work is complete
-    return {"decision": "approve"}
+    # Allow stop if work is complete (omit decision field)
+    return {}
 
 
 def is_safe_path(file_path: str) -> bool:
@@ -154,14 +157,16 @@ def format_output(decision: Dict[str, Any]) -> str:
     """
     Format stop decision as JSON for Claude Code.
 
+    Per Claude Code schema, Stop hook decision/reason go at top level,
+    not inside hookSpecificOutput.
+
     Args:
         decision: Dict with decision and optional reason
 
     Returns:
-        JSON string with hookSpecificOutput
+        JSON string with top-level decision fields
     """
-    output = {"hookSpecificOutput": decision}
-    return json.dumps(output)
+    return json.dumps(decision)
 
 
 def main():
@@ -224,7 +229,7 @@ def main():
     except Exception as e:
         # On any error, allow stop and log error
         sys.stderr.write(f"ERROR in stop hook: {e}\n")
-        decision = {"decision": "approve"}
+        decision = {}  # Omit decision to allow stop
         print(format_output(decision))
         return 0
 

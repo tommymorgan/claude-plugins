@@ -210,22 +210,24 @@ class TestStopDecisions(unittest.TestCase):
         self.assertIn("Work incomplete", decision["reason"])
 
     def test_allows_stop_when_work_complete(self):
-        """Should allow stop when completion = 100%"""
+        """Should allow stop when completion = 100% (omit decision field)"""
         from stop_if_incomplete import make_stop_decision
 
         completion = {"completion_percentage": 100, "todo_count": 0, "done_count": 5}
 
         decision = make_stop_decision(completion)
 
-        self.assertEqual(decision["decision"], "approve")
+        # Per Claude Code docs: omit decision field to allow stop
+        self.assertNotIn("decision", decision)
 
     def test_allows_stop_when_no_plan_found(self):
-        """Should allow stop when no active work session detected"""
+        """Should allow stop when no active work session detected (omit decision)"""
         from stop_if_incomplete import make_stop_decision
 
         decision = make_stop_decision(None)
 
-        self.assertEqual(decision["decision"], "approve")
+        # Per Claude Code docs: omit decision field to allow stop
+        self.assertNotIn("decision", decision)
 
 
 class TestPathValidation(unittest.TestCase):
@@ -252,7 +254,7 @@ class TestJSONOutput(unittest.TestCase):
     """Test JSON output format"""
 
     def test_outputs_valid_json_for_block(self):
-        """Should output valid JSON with decision: block"""
+        """Should output valid JSON with decision: block at top level"""
         from stop_if_incomplete import format_output
 
         decision = {
@@ -263,19 +265,22 @@ class TestJSONOutput(unittest.TestCase):
         output = format_output(decision)
 
         parsed = json.loads(output)
-        self.assertEqual(parsed["hookSpecificOutput"]["decision"], "block")
-        self.assertIn("Work incomplete", parsed["hookSpecificOutput"]["reason"])
+        # Per Claude Code schema, decision goes at top level for Stop hooks
+        self.assertEqual(parsed["decision"], "block")
+        self.assertIn("Work incomplete", parsed["reason"])
 
     def test_outputs_valid_json_for_approve(self):
-        """Should output valid JSON with decision: approve"""
+        """Should output empty JSON to allow stop (omit decision field)"""
         from stop_if_incomplete import format_output
 
-        decision = {"decision": "approve"}
+        # Per Claude Code docs: omit decision field to allow stop
+        decision = {}
 
         output = format_output(decision)
 
         parsed = json.loads(output)
-        self.assertEqual(parsed["hookSpecificOutput"]["decision"], "approve")
+        # Should be empty object (no decision field = allow)
+        self.assertNotIn("decision", parsed)
 
 
 if __name__ == "__main__":
