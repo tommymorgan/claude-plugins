@@ -371,13 +371,7 @@ def get_user_confirmation(prompt: str) -> bool:
 
 
 def allow_command():
-    """Output JSON to allow command execution"""
-    output = {
-        "hookSpecificOutput": {
-            "permissionDecision": "allow"
-        }
-    }
-    print(json.dumps(output))
+    """Allow command execution by exiting cleanly with no output"""
     sys.exit(0)
 
 
@@ -385,6 +379,7 @@ def deny_command(reason: str):
     """Output JSON to block command execution"""
     output = {
         "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
             "permissionDecision": "deny",
             "permissionDecisionReason": reason
         }

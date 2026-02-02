@@ -1,6 +1,6 @@
 # tommymorgan
 
-**Version**: 0.4.0
+**Version**: 0.4.2
 **Category**: Development Workflow
 **License**: MIT
 
@@ -357,6 +357,14 @@ python3 -m pytest
 **No external plugin dependencies** - all functionality is self-contained.
 
 ## Changelog
+
+### v0.4.2 (2026-02-02)
+- **Fixed**: hooks.json schema validation - Stop and UserPromptSubmit hooks now use correct nested structure
+
+### v0.4.1 (2026-02-02)
+- **Fixed**: Pre-push squash hook JSON output validation errors
+  - `allow_command()` now exits cleanly without output (correct hook behavior)
+  - `deny_command()` now includes required `hookEventName` field
 
 ### v0.4.0 (2026-02-01)
 - **Added**: `/review-features` command for reviewing any Gherkin scenarios
