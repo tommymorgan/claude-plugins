@@ -433,4 +433,3 @@ MIT License - See LICENSE file for details
 - **GitHub**: https://github.com/tommymorgan/claude-plugins
 - **Issues**: https://github.com/tommymorgan/claude-plugins/issues
 - **Plugin Directory**: `tommymorgan/`
-
