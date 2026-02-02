@@ -1,6 +1,6 @@
 # tommymorgan
 
-**Version**: 0.4.2
+**Version**: 0.4.3
 **Category**: Development Workflow
 **License**: MIT
 
@@ -357,6 +357,9 @@ python3 -m pytest
 **No external plugin dependencies** - all functionality is self-contained.
 
 ## Changelog
+
+### v0.4.3 (2026-02-02)
+- **Fixed**: hooks.json requires top-level `"hooks"` wrapper object (matches other plugins' format)
 
 ### v0.4.2 (2026-02-02)
 - **Fixed**: hooks.json schema validation - Stop and UserPromptSubmit hooks now use correct nested structure

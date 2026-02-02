@@ -1,6 +1,6 @@
 {
 	"name": "tommymorgan",
-	"version": "0.4.2",
+	"version": "0.4.3",
 	"description": "Self-contained development workflow: planning with expert review, autonomous TDD execution with 6-agent code review, smart testing, coverage analysis, documentation generation, and root-cause debugging",
 	"author": {
 		"name": "Tommy Morgan",
