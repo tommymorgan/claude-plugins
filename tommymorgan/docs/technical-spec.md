@@ -9,10 +9,10 @@ A plan file with gherkin code blocks in any sections: the migration tool process
 Two scenarios with similar names and steps: the migration compares them, it calculates semantic similarity score, scores above 0.8 are treated as matches, scores below 0.8 are flagged for manual review, similarity weights: 60% name, 40% steps.
 
 ### Migration groups scenarios by feature area
-Extracted scenarios from multiple plans: the migration creates .feature files, scenarios about the same feature are grouped together, each .feature file has a descriptive feature name, files are named using kebab-case, files are placed in project's specs/ directory.
+Extracted scenarios from multiple plans: the migration creates .feature files, scenarios about the same feature are grouped together, each .feature file has a descriptive feature name, files are named using kebab-case, files are placed in project's features/ directory.
 
 ### Plan tool loads existing living specs
-A project path is determined: the plan tool starts reconciliation, it reads all .feature files from specs/ directory, it parses feature and scenario names, it builds a searchable index of existing scenarios, the index supports fuzzy name matching.
+A project path is determined: the plan tool starts reconciliation, it reads all .feature files from features/ directory, it parses feature and scenario names, it builds a searchable index of existing scenarios, the index supports fuzzy name matching.
 
 ### Plan tool records scenario metadata
 A user has chosen an action (creates/replaces/extends/removes/deprecates): the plan tool writes the scenario to the plan file, it adds metadata as comments before the scenario, metadata includes living file path and scenario name, metadata includes action type, metadata includes status: todo, metadata includes living updated: no.

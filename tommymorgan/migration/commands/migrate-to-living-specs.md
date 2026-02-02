@@ -27,7 +27,7 @@ If no path provided, uses current project (inferred from working directory).
 2. **Extracts Gherkin scenarios** from User Requirements and Technical Specifications
 3. **Groups scenarios by feature** area using semantic similarity
 4. **Tags scenarios** appropriately (@user, @technical)
-5. **Creates .feature files** in specs/ directory
+5. **Creates .feature files** in features/ directory
 6. **Reports progress** with success/failure counts
 
 ## Process
@@ -38,16 +38,16 @@ cd $PROJECT_PATH
 # Run migration tool
 python3 tools/claude-plugins/tommymorgan/migration/commands/migrate.py .
 
-# Results will be in specs/ directory
-ls specs/*.feature
+# Results will be in features/ directory
+ls features/*.feature
 ```
 
 ## Output
 
-Creates `.feature` files in `<project>/specs/` directory:
+Creates `.feature` files in `<project>/features/` directory:
 
 ```
-specs/
+features/
   authentication.feature
   user-management.feature
   analytics.feature
@@ -86,7 +86,7 @@ Errors:
 - plan-broken.md: Parse error
 - plan-incomplete.md: No Gherkin blocks
 
-Check specs/ directory for living specifications.
+Check features/ directory for living specifications.
 ```
 
 ## When to Use

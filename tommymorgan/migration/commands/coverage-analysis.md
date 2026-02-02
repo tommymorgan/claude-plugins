@@ -20,7 +20,7 @@ Analyzes which scenarios in living .feature files have corresponding tests, iden
 
 ## What This Does
 
-1. **Loads living specs** from specs/ directory
+1. **Loads living specs** from features/ directory
 2. **Discovers test files** in project (test_*.py, *.test.js, etc.)
 3. **Matches scenarios to tests** using fuzzy name matching
 4. **Reports coverage percentage**
@@ -31,7 +31,7 @@ Analyzes which scenarios in living .feature files have corresponding tests, iden
 ```bash
 cd $PROJECT_PATH
 
-python3 tools/claude-plugins/tommymorgan/migration/commands/doc_generator.py coverage specs/ .
+python3 tools/claude-plugins/tommymorgan/migration/commands/doc_generator.py coverage features/ .
 ```
 
 ## Output

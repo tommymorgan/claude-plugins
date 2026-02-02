@@ -4,7 +4,7 @@ Feature: Living Gherkin Documentation System
   Scenario: Migration creates living specs from historical plans
       Given a project has multiple historical plans with Gherkin scenarios
       When I run the migration tool
-      Then living .feature files are created in the specs/ directory
+      Then living .feature files are created in the features/ directory
       And scenarios are grouped by feature area
       And user scenarios are tagged @user
       And technical scenarios are tagged @technical
@@ -80,7 +80,7 @@ Feature: Living Gherkin Documentation System
   Scenario: Developers can discover living specs for a project
       Given I'm working on a project
       When I want to understand current functionality
-      Then I can find living specs in the specs/ directory
+      Then I can find living specs in the features/ directory
       And each .feature file is named clearly by feature area
       And the file structure mirrors logical feature organization
   
@@ -157,7 +157,7 @@ Feature: Living Gherkin Documentation System
       Then scenarios about the same feature are grouped together
       And each .feature file has a descriptive Feature name
       And files are named using kebab-case
-      And files are placed in project's specs/ directory
+      And files are placed in project's features/ directory
   
     <!-- DONE -->
     @plan
@@ -166,7 +166,7 @@ Feature: Living Gherkin Documentation System
   Scenario: Plan tool loads existing living specs
       Given a project path is determined
       When the plan tool starts reconciliation
-      Then it reads all .feature files from specs/ directory
+      Then it reads all .feature files from features/ directory
       And it parses Feature and Scenario names
       And it builds a searchable index of existing scenarios
       And the index supports fuzzy name matching

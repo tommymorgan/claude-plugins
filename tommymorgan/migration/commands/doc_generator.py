@@ -101,7 +101,7 @@ def generate_docs(
     Generate documentation from living specs filtered by tags.
 
     Args:
-        specs_dir: Path to specs/ directory
+        specs_dir: Path to features/ directory
         output_path: Where to write documentation
         tags: Tags to filter scenarios (e.g., ['@user'])
         format: Output format ('markdown' or 'html')
@@ -198,7 +198,7 @@ def generate_docs_incremental(
     Generate documentation incrementally, preserving existing content.
 
     Args:
-        specs_dir: Path to specs/ directory
+        specs_dir: Path to features/ directory
         doc_path: Path to existing documentation file
         tags: Tags to filter scenarios
 
@@ -304,7 +304,7 @@ def analyze_coverage(specs_dir: Path, project_dir: Path) -> dict:
     Analyze test coverage of scenarios.
 
     Args:
-        specs_dir: Path to specs/ directory
+        specs_dir: Path to features/ directory
         project_dir: Root project directory
 
     Returns:

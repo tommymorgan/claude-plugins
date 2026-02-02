@@ -6,7 +6,7 @@ This tool:
 1. Scans a project's plans/ directory
 2. Extracts Gherkin scenarios from User Requirements and Technical Specifications
 3. Groups scenarios by feature area
-4. Creates .feature files in specs/ directory with appropriate tags
+4. Creates .feature files in features/ directory with appropriate tags
 """
 
 import re
@@ -359,4 +359,4 @@ if __name__ == "__main__":
 
     project_path = sys.argv[1]
     migrate_project(project_path)
-    print(f"Migration complete! Check {project_path}/specs/ for .feature files")
+    print(f"Migration complete! Check {project_path}/features/ for .feature files")

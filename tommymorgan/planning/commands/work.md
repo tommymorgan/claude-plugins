@@ -28,11 +28,12 @@ Work through all scenarios in a plan using TDD with comprehensive quality gates.
 
 ## Completion Criteria
 
-**The work command ONLY stops when ALL three conditions are met:**
+**The work command ONLY stops when ALL FOUR conditions are met:**
 
 1. **All scenarios DONE**: Every scenario in plan marked `<!-- DONE -->`
 2. **All tests passing**: Full test suite passes in local development
 3. **All layers functional**: Every application layer validated and working
+4. **All living specs written**: Every scenario has corresponding `.feature` file in `features/`
 
 **Before ANY potential stopping point, check completion criteria:**
 ```
@@ -40,8 +41,20 @@ function checkCompletionCriteria():
   scenarios_done = all scenarios marked DONE in plan
   tests_passing = test suite exits 0 in local dev
   layers_functional = all detected layers validated successfully
+  living_specs_written = features/*.feature contains all scenarios (verify with grep)
 
-  return scenarios_done AND tests_passing AND layers_functional
+  return scenarios_done AND tests_passing AND layers_functional AND living_specs_written
+```
+
+**Verify living specs exist:**
+```bash
+# Count scenarios in plan
+plan_scenarios=$(grep -c "^Scenario:" plan.md)
+
+# Count scenarios in feature files
+feature_scenarios=$(grep -c "^  Scenario:" features/*.feature 2>/dev/null || echo 0)
+
+# Must match (or feature_scenarios >= plan_scenarios)
 ```
 
 **If `checkCompletionCriteria()` returns false → continue execution**
@@ -166,31 +179,56 @@ Use TodoWrite to track implementation of this scenario.
    - **Update documentation** (user, developer, API docs as needed)
    - Commit incrementally (each green cycle)
 
-3. **Update living specification** (automatic):
-   - Parse scenario metadata from plan:
-     ```gherkin
-     # Living: <project>/specs/<file>.feature::<scenario-name>
-     # Action: creates|replaces|extends|removes|deprecates
-     # Status: TODO
-     # Living updated: NO
+3. **Update living specification** (MANDATORY - not optional):
+
+   **DEFAULT BEHAVIOR**: Every scenario MUST be written to a `.feature` file unless explicitly marked `# Living: none`.
+
+   **Determine target file:**
+   - If plan has `# Living: <path>` metadata → use that path
+   - If NO metadata → derive from scenario: `features/<feature-area>.feature`
+     - Example: "User logs in" → `features/authentication.feature`
+     - Example: "API returns 404" → `features/api-errors.feature`
+
+   **Write the scenario:**
+   ```bash
+   # Create features/ directory if needed
+   mkdir -p features/
+
+   # Write scenario to .feature file
+   # Include @user or @technical tag based on section
+   ```
+
+   **Verify the write happened:**
+   ```bash
+   # MUST show the scenario in git diff
+   git diff --name-only | grep -E "\.feature$"
+
+   # MUST show scenario content
+   grep -l "<scenario name>" features/*.feature
+   ```
+
+   **If verification fails → STOP and fix before continuing.**
+
+   **Update plan metadata:**
+   ```gherkin
+   # Status: DONE
+   # Living updated: YES
+   ```
+
+   **Commit living spec:**
+   ```bash
+   git add features/*.feature
+   git commit -m "docs: add scenario to living specification"
+   ```
+
+   **GATE CHECK before next scenario:**
+   - Run: `git log -1 --name-only | grep -E "\.feature$"`
+   - If NO .feature file in last commit → HALT with error:
      ```
-   - If `Living:` is not "none":
-     - Load the .feature file
-     - Apply the action:
-       - **creates**: Append new scenario to file (preserve @user/@technical tag)
-       - **replaces**: Find and replace existing scenario completely
-       - **extends**: Add new Given/When/Then steps to existing scenario
-       - **removes**: Delete scenario from file
-       - **deprecates**: Add @deprecated tag and comment
-     - Update plan metadata:
-       ```gherkin
-       # Status: DONE
-       # Living updated: YES
-       ```
-     - Commit living spec update
-   - Enforce strict sequential:
-     - Before starting next scenario, verify current has `Living updated: YES`
-     - If NO, halt with error
+     ERROR: Living specification not updated!
+     Scenario "<name>" must be written to features/<file>.feature
+     This is MANDATORY, not optional.
+     ```
 
 4. **If blocked after reasonable attempts:**
    - **NEVER guess at fixes**
@@ -562,6 +600,10 @@ Run `checkCompletionCriteria()`:
 - **Border Collie intelligence** - excellent autonomous judgment
 - **Never stop for token usage** - execute to completion
 - **Fix all problems** - never ask if in scope
+- **LIVING SPECS ARE MANDATORY** - every scenario MUST be written to `features/*.feature`
+  - This is NOT optional
+  - Verify with `ls features/*.feature` and `grep "Scenario:" features/*.feature`
+  - If features/ directory is empty or missing scenarios → work is NOT complete
 
 ## Local Development Definition
 

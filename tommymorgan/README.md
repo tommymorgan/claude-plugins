@@ -1,6 +1,6 @@
 # tommymorgan
 
-**Version**: 0.4.3
+**Version**: 0.4.4
 **Category**: Development Workflow
 **License**: MIT
 
@@ -357,6 +357,13 @@ python3 -m pytest
 **No external plugin dependencies** - all functionality is self-contained.
 
 ## Changelog
+
+### v0.4.4 (2026-02-02)
+- **Fixed**: Updated all `specs/` references to `features/` (37 occurrences missed in v0.4.0)
+- **Changed**: Living specification step is now MANDATORY by default, not conditional
+- **Added**: Explicit verification commands for feature file creation
+- **Added**: Living specs as 4th completion criteria (was 3, now 4)
+- **Added**: Gate check that halts if .feature file not in commit
 
 ### v0.4.3 (2026-02-02)
 - **Fixed**: hooks.json requires top-level `"hooks"` wrapper object (matches other plugins' format)

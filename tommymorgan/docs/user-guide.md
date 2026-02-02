@@ -3,7 +3,7 @@
 ## Living Gherkin Documentation System
 
 ### Migration creates living specs from historical plans
-A project has multiple historical plans with gherkin scenarios: i run the migration tool, living .feature files are created in the specs/ directory, scenarios are grouped by feature area, user scenarios are tagged @user, technical scenarios are tagged @technical.
+A project has multiple historical plans with gherkin scenarios: i run the migration tool, living .feature files are created in the features/ directory, scenarios are grouped by feature area, user scenarios are tagged @user, technical scenarios are tagged @technical.
 
 ### Plan tool shows related living scenarios during reconciliation
 I'm creating a new plan with gherkin scenarios: living specs exist for the project, the plan tool performs interactive reconciliation, it shows me existing scenarios similar to my drafted scenario, it asks whether i'm creating, replacing, extending, or deprecating, my choice is recorded as metadata on the plan scenario.
@@ -24,7 +24,7 @@ Living specs exist with @technical scenarios: i generate developer documentation
 User documentation already exists: living specs have minor changes, i regenerate documentation, only the changed sections are updated, existing prose and explanations are preserved, the documentation voice and style remain consistent, the overall structure and organization are maintained.
 
 ### Developers can discover living specs for a project
-I'm working on a project: i want to understand current functionality, i can find living specs in the specs/ directory, each .feature file is named clearly by feature area, the file structure mirrors logical feature organization.
+I'm working on a project: i want to understand current functionality, i can find living specs in the features/ directory, each .feature file is named clearly by feature area, the file structure mirrors logical feature organization.
 
 ### Generated documentation is accessible
 Documentation is generated from living specs: a user with accessibility needs reads the documentation, it works with screen readers, it has proper heading hierarchy, it includes alt text for any diagrams, it has sufficient color contrast.

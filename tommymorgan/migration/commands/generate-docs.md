@@ -47,10 +47,10 @@ Generate user documentation, developer documentation, or both from living .featu
 cd $PROJECT_PATH
 
 # Generate user docs
-python3 tools/claude-plugins/tommymorgan/migration/commands/doc_generator.py generate specs/ docs/user-guide.md --tags @user
+python3 tools/claude-plugins/tommymorgan/migration/commands/doc_generator.py generate features/ docs/user-guide.md --tags @user
 
 # Generate developer docs
-python3 tools/claude-plugins/tommymorgan/migration/commands/doc_generator.py generate specs/ docs/technical-spec.md --tags @technical
+python3 tools/claude-plugins/tommymorgan/migration/commands/doc_generator.py generate features/ docs/technical-spec.md --tags @technical
 ```
 
 ## Output

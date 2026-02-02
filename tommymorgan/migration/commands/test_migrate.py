@@ -5,7 +5,7 @@ Tests for Migration Command
 Scenario: Migration creates living specs from historical plans
   Given a project has multiple historical plans with Gherkin scenarios
   When I run the migration tool
-  Then living .feature files are created in the specs/ directory
+  Then living .feature files are created in the features/ directory
   And scenarios are grouped by feature area
   And user scenarios are tagged @user
   And technical scenarios are tagged @technical
@@ -64,7 +64,7 @@ Feature: User Authentication
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
     def test_creates_specs_directory(self):
-        """Should create specs/ directory if it doesn't exist"""
+        """Should create features/ directory if it doesn't exist"""
         from migrate import migrate_project
 
         migrate_project(self.test_dir)
@@ -73,7 +73,7 @@ Feature: User Authentication
         self.assertTrue(self.specs_dir.is_dir())
 
     def test_creates_feature_files(self):
-        """Should create .feature files in specs/ directory"""
+        """Should create .feature files in features/ directory"""
         from migrate import migrate_project
 
         migrate_project(self.test_dir)

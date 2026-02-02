@@ -5,7 +5,7 @@ Tests for .feature file parsing
 Scenario: Plan tool loads existing living specs
   Given a project path is determined
   When the plan tool starts reconciliation
-  Then it reads all .feature files from specs/ directory
+  Then it reads all .feature files from features/ directory
   And it parses Feature and Scenario names
   And it builds a searchable index of existing scenarios
   And the index supports fuzzy name matching
@@ -48,7 +48,7 @@ class TestFeatureFileParsing(unittest.TestCase):
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
     def test_reads_all_feature_files(self):
-        """Should find and read all .feature files in specs/ directory"""
+        """Should find and read all .feature files in features/ directory"""
         from feature_parser import load_feature_files
 
         features = load_feature_files(self.specs_dir)

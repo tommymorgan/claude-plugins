@@ -12,10 +12,10 @@ from typing import Dict, List
 
 def load_feature_files(specs_dir: Path) -> Dict[str, dict]:
     """
-    Load and parse all .feature files from specs/ directory.
+    Load and parse all .feature files from features/ directory.
 
     Args:
-        specs_dir: Path to specs/ directory
+        specs_dir: Path to features/ directory
 
     Returns:
         Dict mapping filename to parsed feature data:
