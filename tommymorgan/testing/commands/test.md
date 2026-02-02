@@ -60,7 +60,7 @@ If no plan file, go to **Step 3: Standalone Mode**
    For browser testing:
    ```typescript
    Task({
-     subagent_type: "exploratory-tester:browser-explorer",
+     subagent_type: "tommymorgan:browser-explorer",
      description: "Test User Requirements scenarios",
      prompt: `Validate implementation against User Requirements:
 
@@ -73,7 +73,7 @@ Test each scenario systematically. Report findings.`
    For API testing:
    ```typescript
    Task({
-     subagent_type: "exploratory-tester:api-explorer",
+     subagent_type: "tommymorgan:api-explorer",
      description: "Test Technical Specifications",
      prompt: `Validate API implementation against Technical Specifications:
 
@@ -86,7 +86,7 @@ Test endpoints, authentication, error handling. Report findings.`
    For CLI testing:
    ```typescript
    Task({
-     subagent_type: "exploratory-tester:cli-tester",
+     subagent_type: "tommymorgan:cli-tester",
      description: "Test CLI specifications",
      prompt: `Validate CLI implementation against Technical Specifications:
 
@@ -122,7 +122,7 @@ Test commands, output, exit codes. Report findings.`
 
    ```typescript
    Task({
-     subagent_type: "exploratory-tester:<type>-explorer",
+     subagent_type: "tommymorgan:<type>-explorer",
      description: "Exploratory testing",
      prompt: `$ARGUMENTS
 

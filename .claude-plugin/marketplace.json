@@ -6,15 +6,15 @@
   },
   "metadata": {
     "description": "Tommy's curated collection of Claude Code plugins for debugging, development workflow, and productivity",
-    "version": "0.3.7",
+    "version": "0.4.0",
     "repository": "https://github.com/tommymorgan/claude-plugins"
   },
   "plugins": [
     {
       "name": "tommymorgan",
       "source": "./tommymorgan",
-      "description": "Comprehensive development workflow: planning with expert review, autonomous TDD execution, smart testing, and root-cause debugging",
-      "version": "0.3.7",
+      "description": "Self-contained development workflow: planning with expert review, autonomous TDD execution with 6-agent code review, smart testing, and root-cause debugging",
+      "version": "0.4.0",
       "category": "workflow"
     }
   ]

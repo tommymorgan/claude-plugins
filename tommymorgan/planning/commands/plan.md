@@ -24,7 +24,7 @@ Create a comprehensive feature plan through collaborative brainstorming, generat
 Use the Skill tool to invoke the brainstorming skill:
 
 ```
-Skill("superpowers:brainstorming")
+Skill("tommymorgan:brainstorming")
 ```
 
 Brainstorm the feature described by the user: $ARGUMENTS
@@ -83,10 +83,10 @@ Cover:
 **Check for existing living specs:**
 
 ```bash
-# Check if project has specs/ directory
+# Check if project has features/ directory
 if [ -d "<project>/specs" ]; then
   # Load existing .feature files
-  ls <project>/specs/*.feature 2>/dev/null
+  ls <project>/features/*.feature 2>/dev/null
 fi
 ```
 
@@ -94,7 +94,7 @@ fi
 
 For each drafted scenario (both User Requirements and Technical Specifications):
 
-1. **Load existing scenarios** from all .feature files in specs/
+1. **Load existing scenarios** from all .feature files in features/
 2. **Find similar scenarios** using semantic similarity (from migration tool):
    - Compare scenario names and steps
    - Use 0.8 similarity threshold
@@ -104,7 +104,7 @@ For each drafted scenario (both User Requirements and Technical Specifications):
    ```
    Your drafted scenario: "User logs in successfully"
 
-   Found similar scenario in specs/authentication.feature:
+   Found similar scenario in features/authentication.feature:
      "User authenticates with valid credentials"
      Similarity: 0.85
 
@@ -120,7 +120,7 @@ For each drafted scenario (both User Requirements and Technical Specifications):
 
 4. **Record metadata** as comments before each scenario:
    ```gherkin
-   # Living: <project>/specs/<file>.feature::<scenario-name>
+   # Living: <project>/features/<file>.feature::<scenario-name>
    # Action: creates|replaces|extends|removes|deprecates
    # Status: TODO
    # Living updated: NO
@@ -169,54 +169,24 @@ Before expert review, validate plan against checklist:
 
 ### Step 6: Expert Review Panel
 
-Invoke expert reviewers to validate and improve the plan. Experts debate conflicts autonomously and reach consensus.
+Invoke the `/review-features` command to run the expert panel on the generated scenarios:
 
-**Panel Members:**
-
-1. **Marty Cagan** (Product Management)
-   - Reviews: User Requirements only
-   - Focus: Product value, user outcomes, completeness of user paths
-   - Pushback: Technical details in user scenarios
-
-2. **Dave Farley** (Continuous Delivery)
-   - Reviews: User Requirements AND Technical Specifications
-   - Focus: Testability, automation, CD practices, deployability
-
-3. **OWASP Security Expert**
-   - Reviews: Technical Specifications
-   - Focus: Auth/authz, input validation, data protection, threat modeling
-
-4. **Jakob Nielsen** (UX/Accessibility)
-   - Reviews: User Requirements
-   - Focus: Usability depth, accessibility beyond compliance, interaction patterns
-
-5. **Martin Kleppmann** (Data-Intensive Systems)
-   - Reviews: Technical Specifications
-   - Focus: Scalability, data architecture, performance design
-
-6. **Eric Evans** (Domain-Driven Design)
-   - Reviews: User Requirements AND Technical Specifications
-   - Focus: Domain modeling, business logic, bounded contexts
-
-7. **Google SRE**
-   - Reviews: Technical Specifications
-   - Focus: Observability, monitoring, failure modes, operational concerns
-
-**Review Process:**
-
-1. Each expert reviews their assigned sections
-2. Experts identify issues and suggest improvements
-3. When experts disagree, they debate and reach consensus
-4. No user intervention - experts resolve conflicts autonomously
-5. Plan is refined based on consensus
-
-**Implementation:**
 ```
-Review each section with appropriate experts
-Collect feedback
-Resolve conflicts through expert debate
-Refine plan based on consensus
+/tommymorgan:review-features <draft-plan-content>
 ```
+
+The expert panel (7 domain experts) will:
+1. Review scenarios based on content context (auto-detected)
+2. Provide prioritized recommendations (Critical/High/Medium)
+3. Debate conflicts and reach consensus autonomously
+4. Output structured feedback
+
+**Apply expert feedback:**
+- Address all Critical issues before proceeding
+- Consider High Priority improvements
+- Document any Medium Priority items deferred to future work
+
+Refine scenarios based on consensus recommendations.
 
 Instead of separate task lists, use inline comments to track scenario progress:
 

@@ -1,6 +1,6 @@
 # tommymorgan
 
-**Version**: 1.2.0
+**Version**: 0.4.0
 **Category**: Development Workflow
 **License**: MIT
 
@@ -73,8 +73,17 @@ Technical Specifications:
 Next scenario: User can refresh JWT token
 ```
 
+#### `/tommymorgan:review-features <path>`
+Review any Gherkin scenarios with 7 domain experts.
+
+**Accepts**:
+- `.feature` files
+- Plan files (`.md`)
+- Directories (all `.feature` files)
+- Glob patterns (`features/*.feature`)
+
 #### `/tommymorgan:review-plan <plan-file>`
-Independent plan review with 7 domain experts providing context-aware, prioritized recommendations.
+Review a plan file with the expert panel (wrapper around `/review-features`).
 
 **Expert Panel**:
 1. **Marty Cagan** (Product Strategy) - User outcomes vs implementation details
@@ -280,6 +289,7 @@ Claude: Work incomplete: 4/12 scenarios TODO (67%)
 ## Components
 
 ### Skills
+- `brainstorming` - Collaborative idea exploration and design
 - `plan-format` - Gherkin plan structure and formatting
 - `tdd-execution` - Red-Green-Refactor workflow
 - `verification-sweep` - Test execution and validation
@@ -289,9 +299,21 @@ Claude: Work incomplete: 4/12 scenarios TODO (67%)
 - `five-whys-methodology` - Root cause analysis process
 
 ### Agents
+
+**Code Review** (6 agents run in parallel during /work):
+- `code-reviewer` - CLAUDE.md compliance, style, bugs, quality
+- `comment-analyzer` - Comment accuracy, completeness, staleness
+- `test-analyzer` - Coverage gaps, edge cases, test quality
+- `silent-failure-hunter` - Empty catches, missing logging, swallowed errors
+- `type-design-analyzer` - Encapsulation, invariants, enforcement
+- `code-simplifier` - Unnecessary complexity, redundancy
+
+**Exploratory Testing**:
 - `api-explorer` - Autonomous API endpoint testing
 - `browser-explorer` - Autonomous browser-based testing
 - `cli-tester` - Autonomous CLI tool testing
+
+**Debugging**:
 - `root-cause-analyzer` - Autonomous five whys investigation
 
 ### Hooks
@@ -332,13 +354,22 @@ python3 -m pytest
 **Python Dependencies:**
 - `Pillow (PIL)` - Required for automatic image resizing
 
-**Recommended plugins** (not required):
-- `pr-review-toolkit` - Additional code review agents
-- `superpowers` - Enhanced skill system
+**No external plugin dependencies** - all functionality is self-contained.
 
 ## Changelog
 
-### v1.2.0 (2026-01-01)
+### v0.4.0 (2026-02-01)
+- **Added**: `/review-features` command for reviewing any Gherkin scenarios
+- **Added**: Internal `brainstorming` skill (no longer requires superpowers plugin)
+- **Added**: 6 code review agents (no longer requires pr-review-toolkit):
+  - code-reviewer, comment-analyzer, test-analyzer
+  - silent-failure-hunter, type-design-analyzer, code-simplifier
+- **Changed**: Code review gate runs all 6 agents in parallel
+- **Changed**: Living specs directory from `specs/` to `features/` (Cucumber convention)
+- **Changed**: `/review-plan` is now a wrapper around `/review-features`
+- **Removed**: All external plugin dependencies (fully self-contained)
+
+### v0.3.0 (2026-01-01)
 - **Added**: Built-in automatic image resizing (migrated from auto-resize-images)
 - **Added**: Configuration support via `.claude/tommymorgan.local.md`
 - Automatically resizes images >2000px before submission
@@ -346,19 +377,19 @@ python3 -m pytest
 - Configurable per-project (enabled by default)
 - Transparent operation with clear feedback
 
-### v1.1.1 (2026-01-01)
+### v0.2.2 (2026-01-01)
 - **Removed**: Override mechanism for stop hook
 - Stop hook now strictly enforces completion
 - No `TOMMYMORGAN_ALLOW_INCOMPLETE_STOP` env var
 
-### v1.1.0 (2026-01-01)
+### v0.2.0 (2026-01-01)
 - **Added**: `/review-plan` command with 7 domain experts
 - **Added**: Stop hook for work completion enforcement
 - Expert review with context-aware filtering
 - Expert debates for conflicting recommendations
 - Prioritized recommendations (Critical/High/Medium)
 
-### v1.0.2 (2025-12-31)
+### v0.1.0 (2025-12-31)
 - **Added**: Pre-push squash verification hook
 - **Added**: Post-push cleanup hook
 

@@ -169,7 +169,7 @@ Launch code-reviewer subagent:
 
 ```typescript
 Task({
-  subagent_type: "pr-review-toolkit:code-reviewer",
+  subagent_type: "tommymorgan:code-reviewer",
   description: "Review task implementation",
   prompt: `Review the implementation:
 
@@ -278,7 +278,7 @@ After 3-5 implementation attempts:
 2. **Invoke root-cause-analysis:**
 ```typescript
 Task({
-  subagent_type: "root-cause-analysis:root-cause-analyzer",
+  subagent_type: "tommymorgan:root-cause-analyzer",
   prompt: `Analyze failure:
 
 Error: <what's failing>

@@ -197,7 +197,7 @@ Use TodoWrite to track implementation of this scenario.
    - **ALWAYS invoke `/tommymorgan:root-cause`:**
      ```typescript
      Task({
-       subagent_type: "root-cause-analysis:root-cause-analyzer",
+       subagent_type: "tommymorgan:root-cause-analyzer",
        description: "Analyze failure: <scenario>",
        prompt: `Root cause analysis:
 
@@ -216,34 +216,69 @@ Use TodoWrite to track implementation of this scenario.
 
 ### Step 6: Code Review Gate
 
-Before marking scenario complete, get code review:
+Before marking scenario complete, run all 6 code review agents in parallel:
 
 ```typescript
-Task({
-  subagent_type: "pr-review-toolkit:code-reviewer",
-  description: "Review scenario implementation",
-  prompt: `Review implementation:
-
-Scenario: <Gherkin scenario text>
-
-Focus on:
-- Does implementation satisfy the scenario?
-- Code quality and best practices
-- Security considerations
-- Documentation accuracy and completeness
-- Test quality
-
-Changed files: <list changed files>
-
-Respond: APPROVED or NEEDS_CHANGES with details.`
-})
+// Run all 6 agents in parallel
+const reviews = await Promise.all([
+  Task({
+    subagent_type: "tommymorgan:code-reviewer",
+    description: "Review code quality",
+    prompt: `Review implementation for: <Gherkin scenario text>
+    Changed files: <list changed files>
+    Check: CLAUDE.md compliance, style, bugs, quality`
+  }),
+  Task({
+    subagent_type: "tommymorgan:comment-analyzer",
+    description: "Review comments/docs",
+    prompt: `Review documentation for: <Gherkin scenario text>
+    Changed files: <list changed files>
+    Check: Comment accuracy, completeness, staleness`
+  }),
+  Task({
+    subagent_type: "tommymorgan:test-analyzer",
+    description: "Review test coverage",
+    prompt: `Review tests for: <Gherkin scenario text>
+    Changed files: <list changed files>
+    Check: Coverage gaps, edge cases, test quality`
+  }),
+  Task({
+    subagent_type: "tommymorgan:silent-failure-hunter",
+    description: "Hunt silent failures",
+    prompt: `Review error handling for: <Gherkin scenario text>
+    Changed files: <list changed files>
+    Check: Empty catches, missing logging, swallowed errors`
+  }),
+  Task({
+    subagent_type: "tommymorgan:type-design-analyzer",
+    description: "Review type design",
+    prompt: `Review types for: <Gherkin scenario text>
+    Changed files: <list changed files>
+    Check: Encapsulation, invariants, enforcement`
+  }),
+  Task({
+    subagent_type: "tommymorgan:code-simplifier",
+    description: "Find simplifications",
+    prompt: `Review complexity for: <Gherkin scenario text>
+    Changed files: <list changed files>
+    Check: Unnecessary complexity, redundancy, clarity`
+  })
+]);
 ```
 
+**Aggregate results:**
+- APPROVED: All 6 agents approve (no issues with score >= 91)
+- NEEDS_CHANGES: Any agent flags critical issues (score >= 91)
+
+**Display all feedback:**
+- Show issues from all agents grouped by severity
+- Show verdicts from each agent
+
 **If NEEDS_CHANGES:**
-1. Invoke `/tommymorgan:root-cause` to analyze feedback
-2. Address feedback based on root cause analysis
+1. Invoke `/tommymorgan:root-cause` to analyze the feedback
+2. Address issues based on root cause analysis
 3. Re-run tests
-4. Request another review
+4. Request another review (all 6 agents)
 5. If still NEEDS_CHANGES, repeat steps 1-4
 6. After 3 root-cause-driven iterations: Block and require user intervention
 
