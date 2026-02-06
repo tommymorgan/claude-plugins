@@ -1,6 +1,6 @@
 # tommymorgan
 
-**Version**: 0.4.7
+**Version**: 0.5.0
 **Category**: Development Workflow
 **License**: MIT
 
@@ -74,7 +74,7 @@ Next scenario: User can refresh JWT token
 ```
 
 #### `/tommymorgan:review-features <path>`
-Review any Gherkin scenarios with 7 domain experts.
+Review Gherkin scenarios with a panel of domain experts.
 
 **Accepts**:
 - `.feature` files
@@ -105,7 +105,7 @@ Review a plan file with the expert panel (wrapper around `/review-features`).
 - Specific scenario references
 - Concrete improvement suggestions
 
-**Performance**: Completes in <30 seconds
+**Output format**: Structured review with prioritized recommendations
 
 ### Testing
 
@@ -209,12 +209,15 @@ Set auto_resize_images to false to disable automatic resizing.
 # Feature: User Authentication API
 
 **Created**: 2026-01-01
-**Plugin**: tommymorgan
 **Goal**: Add JWT-based authentication for API endpoints
 
 ## User Requirements
 
 <!-- TODO -->
+# Living: none (initial implementation)
+# Action: creates
+# Status: TODO
+# Living updated: NO
 Scenario: User registers with email
   Given I am a new user
   When I POST to /api/auth/register with email and password
@@ -222,6 +225,10 @@ Scenario: User registers with email
   And I receive a JWT access token
 
 <!-- DONE -->
+# Living: apps/api/features/authentication.feature::user-logs-in
+# Action: replaces
+# Status: DONE
+# Living updated: YES
 Scenario: User logs in with credentials
   Given I am a registered user
   When I POST to /api/auth/login with valid credentials
@@ -230,11 +237,20 @@ Scenario: User logs in with credentials
 ## Technical Specifications
 
 <!-- TODO -->
+# Living: none (initial implementation)
+# Action: creates
+# Status: TODO
+# Living updated: NO
 Scenario: JWT tokens expire after 7 days
   Given a user has a valid JWT token
   When 7 days have passed
   Then the token should be rejected as expired
   And API should return 401 Unauthorized
+
+## Affected Documentation
+
+- [ ] Update README.md — document authentication endpoints
+- [ ] Update docs/api.md — add auth API reference
 
 ## Notes
 
@@ -296,6 +312,7 @@ Claude: Work incomplete: 4/12 scenarios TODO (67%)
 - `api-testing-patterns` - REST/GraphQL testing patterns
 - `browser-testing-patterns` - Web UI testing with Playwright
 - `cli-testing-patterns` - CLI tool testing patterns
+- `rest-api-guidelines` - REST API design patterns and conventions
 - `five-whys-methodology` - Root cause analysis process
 
 ### Agents
@@ -336,7 +353,7 @@ Claude: Work incomplete: 4/12 scenarios TODO (67%)
 ## Testing
 
 The plugin includes comprehensive test suites:
-- `planning/commands/test_review_plan.py` - 13 tests for plan parsing and context detection
+- `planning/commands/test_review_plan.py` - 15 tests for plan parsing and context detection
 - `hooks/test_stop_if_incomplete.py` - 18 tests for stop hook enforcement
 - `hooks/test_resize_images.py` - 18 tests for automatic image resizing
 - `hooks/test_pre_push_squash.py` - Tests for pre-push verification
@@ -357,6 +374,16 @@ python3 -m pytest
 **No external plugin dependencies** - all functionality is self-contained.
 
 ## Changelog
+
+### v0.5.0 (2026-02-06)
+- **Added**: Technology Checkpoint step in plan command — scans project files and confirms undecided technology decisions
+- **Added**: Section-level expert review during brainstorming Phase 3
+- **Added**: Affected Documentation section in plan files
+- **Added**: Incremental recommendation presentation in review-features (Critical one-at-a-time, High/Medium with review style choice)
+- **Added**: REST API Guidelines skill
+- **Added**: `claude_plugin` context detection category
+- **Changed**: Plan format skill rewritten to match current scenario-based format
+- **Changed**: Removed hardcoded expert count and aspirational performance timing from review-features
 
 ### v0.4.7 (2026-02-02)
 - **Fixed**: Stop hook - `decision` field goes at top-level, not inside `hookSpecificOutput`

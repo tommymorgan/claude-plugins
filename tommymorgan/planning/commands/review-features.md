@@ -6,11 +6,12 @@ allowed-tools:
   - Read
   - Glob
   - Grep
+  - AskUserQuestion
 ---
 
 # Review Features with Expert Panel
 
-Review any Gherkin scenarios using 7 domain experts. Accepts feature files, plan files, directories, or glob patterns.
+Review any Gherkin scenarios using a panel of domain experts. Accepts feature files, plan files, directories, or glob patterns.
 
 ## Workflow
 
@@ -69,7 +70,7 @@ Store detected categories - experts will use this to filter relevance.
 
 ### Step 3: Expert Panel Review
 
-Invoke 7 domain experts to review the scenarios. Each expert:
+Invoke the domain experts below to review the scenarios. Each expert:
 1. Reviews scenarios relevant to their expertise
 2. Considers detected content context
 3. Provides recommendations with priority (Critical/High/Medium)
@@ -164,7 +165,56 @@ Each recommendation includes:
 
 ### Step 6: Output Structured Review
 
-Generate markdown-formatted review:
+Generate the review and present recommendations incrementally to the user.
+
+**When called from the plan command**, use the incremental presentation mode:
+
+**Critical issues — one at a time:**
+
+For each Critical issue, present it individually using AskUserQuestion:
+
+```
+[Expert Name]: <Issue Title>
+Scenario: <scenario name>
+
+<Description of issue>
+
+Recommendation: <specific suggestion>
+Reasoning: <why this matters>
+
+Options:
+- Accept — Apply this recommendation
+- Modify — Apply with changes
+- Reject — Keep as-is
+```
+
+Apply accepted/modified changes to the scenarios immediately before showing the next issue.
+
+**High Priority — user chooses review style:**
+
+After all Critical issues are resolved, present the count and ask:
+```
+There are N High Priority recommendations.
+
+Options:
+- One at a time — Review and decide on each individually
+- All at once — Show all, then apply accepted changes
+- Skip — Trust the experts, accept all
+```
+
+**Medium Priority — user chooses review style:**
+
+Same pattern as High Priority:
+```
+There are N Medium Priority recommendations.
+
+Options:
+- One at a time — Review and decide on each individually
+- All at once — Show all, then apply accepted changes
+- Skip — Defer to future work
+```
+
+**When called standalone** (not from the plan command), output the full structured review:
 
 ```markdown
 # Feature Review: <source description>
@@ -228,24 +278,13 @@ Generate markdown-formatted review:
 3. Evaluate Medium Priority enhancements based on scope
 ```
 
-### Step 7: Performance Budget
+### Step 7: Structure Output
 
-Complete all expert reviews and output within **30 seconds**.
-
-Provide progress feedback during execution:
-```
-Loading scenarios from <source>...
-Detected context: <categories>
-Reviewing with Marty Cagan...
-Reviewing with Dave Farley...
-Reviewing with OWASP Expert...
-Reviewing with Jakob Nielsen...
-Reviewing with Martin Kleppmann...
-Reviewing with Eric Evans...
-Reviewing with Google SRE...
-Resolving expert debates...
-Generating recommendations...
-```
+Present progress through the review:
+- Which source was loaded
+- Which context was detected
+- Which experts reviewed
+- Summary of recommendations
 
 ## Important Notes
 
@@ -253,5 +292,6 @@ Generating recommendations...
 - **Experts self-filter**: Each expert only comments on relevant scenarios
 - **Debates show reasoning**: When experts disagree, document the resolution
 - **Prioritization helps**: Users know what to tackle first
-- **This is advisory**: Users manually apply recommendations
+- **Interactive when called from plan command**: Critical issues presented one at a time; High/Medium offer review style choice
+- **Full output when called standalone**: Complete structured review for manual application
 - **Works on any Gherkin**: Plans, feature files, directories, or globs

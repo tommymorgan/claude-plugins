@@ -63,9 +63,36 @@ I recommend Option 1 because [reasoning].
 
 **Once you understand what to build:**
 - Break design into sections of 200-300 words
+- Before presenting each section to the user, run section-level expert review
 - Ask after each section: "Does this section look right?"
 - Wait for confirmation before continuing
 - Be ready to revise if something doesn't fit
+
+**Section-level expert review:**
+
+Before the user sees each design section, route it to relevant experts based on content keywords:
+
+| Section Content Keywords | Expert(s) Invoked |
+|---|---|
+| database, schema, migration, storage, persistence, query | Martin Kleppmann (Data-Intensive Systems) |
+| page, form, button, display, UI, component, dashboard, click | Jakob Nielsen (Usability) |
+| endpoint, request, response, REST, API, HTTP | REST API Guidelines skill + OWASP Security Expert |
+| deploy, pipeline, build, release, CI/CD, container | Dave Farley (Continuous Delivery) |
+| *(always)* | Marty Cagan (Product Strategy) — reviews every section for product value |
+
+For each section:
+1. Draft the section content
+2. Identify matching keywords to determine which experts to invoke
+3. Run the relevant expert review(s) on the section
+4. Incorporate expert feedback into the section
+5. Add a brief annotation noting which expert reviewed and what they suggested:
+   ```
+   > Reviewed by Martin Kleppmann: Suggested adding index strategy for the query pattern described.
+   > Reviewed by Marty Cagan: Confirmed this delivers clear user value.
+   ```
+6. Present the improved section to the user
+
+This adds latency to brainstorming but produces higher-quality designs. The end-of-plan Gherkin review (`/review-features`) still runs as a final pass, but the heavy lifting happens section-by-section here.
 
 **Sections to cover:**
 - Architecture overview
@@ -77,7 +104,11 @@ I recommend Option 1 because [reasoning].
 
 ### Phase 4: After the Design
 
-**Documentation:**
+**When invoked from the plan command** (`/tommymorgan:plan`):
+- Return the validated design to the calling command
+- The plan command handles file creation and expert review
+
+**When invoked standalone:**
 - Write validated design to `<project>/plans/YYYY-MM-DD-<topic>.md`
 - Include all design decisions and rationale
 - Commit the design document

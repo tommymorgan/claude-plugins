@@ -140,6 +140,36 @@ Scenario: Tech scenario
         self.assertIn("technical_specifications", metadata)
         self.assertIn("Tech scenario", metadata["technical_specifications"])
 
+    def test_technical_specs_stops_at_affected_documentation(self):
+        """Should not include Affected Documentation content in Technical Specifications"""
+        from review_plan import extract_metadata
+
+        plan_content = """# Feature: Test Plan
+**Goal**: Test goal
+
+## User Requirements
+<!-- TODO -->
+Scenario: User scenario
+
+## Technical Specifications
+
+<!-- TODO -->
+Scenario: Tech scenario
+  Given context
+  When action
+  Then outcome
+
+## Affected Documentation
+
+- [ ] Update README.md — describe new feature
+"""
+
+        metadata = extract_metadata(plan_content)
+
+        self.assertIn("technical_specifications", metadata)
+        self.assertIn("Tech scenario", metadata["technical_specifications"])
+        self.assertNotIn("README.md", metadata["technical_specifications"])
+
     def test_counts_todo_and_done_markers(self):
         """Should count <!-- TODO --> vs <!-- DONE --> markers"""
         from review_plan import extract_metadata
@@ -247,6 +277,24 @@ Scenario: Migration adds user table
         context = detect_plan_context(plan_content)
 
         self.assertIn("database_migration", context["categories"])
+
+    def test_detects_claude_plugin_context(self):
+        """Should categorize as claude_plugin when plugin keywords present"""
+        from review_plan import detect_plan_context
+
+        plan_content = """# Feature: Plan Command Improvements
+**Goal**: Improve the plugin plan command
+
+## Technical Specifications
+Scenario: Agent reviews scenarios
+  Given a skill is loaded
+  When the plugin processes the plan
+  Then Claude receives expert recommendations
+"""
+
+        context = detect_plan_context(plan_content)
+
+        self.assertIn("claude_plugin", context["categories"])
 
     def test_detects_multiple_contexts(self):
         """Should detect multiple applicable contexts"""

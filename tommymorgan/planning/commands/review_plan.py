@@ -78,7 +78,9 @@ def extract_metadata(plan_content: str) -> Dict[str, Any]:
         metadata["user_requirements"] = user_req_match.group(1).strip()
 
     tech_spec_match = re.search(
-        r"## Technical Specifications\s*\n(.*?)(?=## Notes|$)", plan_content, re.DOTALL
+        r"## Technical Specifications\s*\n(.*?)(?=## Affected Documentation|## Notes|$)",
+        plan_content,
+        re.DOTALL,
     )
     if tech_spec_match:
         metadata["technical_specifications"] = tech_spec_match.group(1).strip()
@@ -99,6 +101,7 @@ def detect_plan_context(plan_content: str) -> Dict[str, Any]:
     - hook, bash, CLI → hook
     - web, UI, page, component, dashboard → ui_component
     - database, schema, migration, table → database_migration
+    - plugin, skill, agent, claude → claude_plugin
 
     Args:
         plan_content: Full markdown content of plan file
@@ -116,6 +119,7 @@ def detect_plan_context(plan_content: str) -> Dict[str, Any]:
     hook_keywords = ["hook", "bash", "cli", "git push", "pre-push", "command"]
     ui_keywords = ["web", "ui", "page", "component", "dashboard", "form", "button"]
     db_keywords = ["database", "schema", "migration", "table", "postgres", "sql"]
+    plugin_keywords = ["plugin", "skill", "agent", "claude"]
 
     # Check for each category
     if any(keyword in content_lower for keyword in api_keywords):
@@ -129,5 +133,8 @@ def detect_plan_context(plan_content: str) -> Dict[str, Any]:
 
     if any(keyword in content_lower for keyword in db_keywords):
         context["categories"].append("database_migration")
+
+    if any(keyword in content_lower for keyword in plugin_keywords):
+        context["categories"].append("claude_plugin")
 
     return context

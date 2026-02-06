@@ -29,13 +29,7 @@ Skill("tommymorgan:brainstorming")
 
 Brainstorm the feature described by the user: $ARGUMENTS
 
-Ask questions one at a time to understand:
-- What problem does this solve?
-- Who are the users?
-- What are the success criteria?
-- What are the constraints?
-
-Explore 2-3 approaches and recommend one.
+The brainstorming skill handles question strategy, approach exploration, and section-level expert review.
 
 ### Step 2: Determine Project Location
 
@@ -50,9 +44,63 @@ If ambiguous, use AskUserQuestion to ask:
 "Which project does this feature belong to?"
 Options: List detected projects from apps/, libs/, tools/
 
-### Step 3: Generate Gherkin Requirements
+### Step 3: Technology Checkpoint
 
-Once the design is clear, write Gherkin scenarios separated into two sections:
+After brainstorming completes and before writing Technical Specifications, verify technology decisions with the user.
+
+**Scan for existing technology stack:**
+
+Read project files to detect technologies already in use:
+- `package.json` — Node.js runtime, frameworks (React, SolidJS, Express, etc.), build tools (Vite, esbuild), test frameworks (Vitest, Jest)
+- `pyproject.toml` / `requirements.txt` — Python version, frameworks (FastAPI, Django, Flask)
+- `Cargo.toml` — Rust edition, dependencies
+- `go.mod` — Go version, modules
+- `Dockerfiles` / `docker-compose.yml` — Container runtimes, database versions
+- `Makefile` / `justfile` — Build tooling
+- `.tool-versions` / `.nvmrc` / `.python-version` — Version managers
+
+Report detected technologies:
+```
+I see you're using: [SolidJS, Vite, Vitest, pnpm, TypeScript 5.4]
+```
+
+**Identify undecided technology decisions:**
+
+Compare what the plan needs against what's already determined. Only ask about decisions that are genuinely open.
+
+Examples of decisions that might be needed:
+- Database choice (if plan requires new data storage)
+- Authentication approach (if plan adds auth)
+- API framework (if plan adds a new service)
+- Testing strategy (if project has no existing test setup)
+
+**If technology decisions are needed:**
+
+Present each decision using AskUserQuestion with options that include tradeoffs:
+```
+This feature needs a database. I see no existing database in the project.
+
+Which database should we use?
+Options:
+- PostgreSQL (Recommended) — Relational, strong for structured data, well-supported in your Node.js stack
+- SQLite — Lightweight, no server needed, good for single-user or embedded use
+- MongoDB — Document store, flexible schema, good for unstructured data
+```
+
+Do not proceed to Technical Specifications until all technology decisions are confirmed.
+
+**If no technology decisions are needed:**
+
+Report that the existing stack covers all needs:
+```
+No new technology decisions needed — your existing stack covers this feature.
+```
+
+Proceed directly to Gherkin generation.
+
+### Step 4: Generate Gherkin Requirements
+
+Once the design is clear and technology decisions are confirmed, write Gherkin scenarios separated into two sections:
 
 **User Requirements** (language/framework agnostic):
 ```gherkin
@@ -78,13 +126,13 @@ Cover:
 - Accessibility (table stakes)
 - Performance (table stakes)
 
-### Step 4: Interactive Reconciliation with Living Specs
+### Step 5: Interactive Reconciliation with Living Specs
 
 **Check for existing living specs:**
 
 ```bash
 # Check if project has features/ directory
-if [ -d "<project>/specs" ]; then
+if [ -d "<project>/features" ]; then
   # Load existing .feature files
   ls <project>/features/*.feature 2>/dev/null
 fi
@@ -95,10 +143,8 @@ fi
 For each drafted scenario (both User Requirements and Technical Specifications):
 
 1. **Load existing scenarios** from all .feature files in features/
-2. **Find similar scenarios** using semantic similarity (from migration tool):
-   - Compare scenario names and steps
-   - Use 0.8 similarity threshold
-   - Show matches to user
+2. **Find similar scenarios** by comparing scenario names and steps.
+   Show potential matches to the user.
 
 3. **Present reconciliation options** using AskUserQuestion:
    ```
@@ -144,7 +190,7 @@ Scenario: <scenario-text>
 - Work tool knows exactly what to update
 - Prevents duplicate/conflicting scenarios
 
-### Step 5: Automated Quality Checklist
+### Step 6: Automated Quality Checklist
 
 Before expert review, validate plan against checklist:
 
@@ -167,7 +213,7 @@ Before expert review, validate plan against checklist:
    - Accessibility considerations present
    - Performance considerations present
 
-### Step 6: Expert Review Panel
+### Step 7: Expert Review Panel
 
 Invoke the `/review-features` command to run the expert panel on the generated scenarios:
 
@@ -175,38 +221,65 @@ Invoke the `/review-features` command to run the expert panel on the generated s
 /tommymorgan:review-features <draft-plan-content>
 ```
 
-The expert panel (7 domain experts) will:
+The expert panel will:
 1. Review scenarios based on content context (auto-detected)
 2. Provide prioritized recommendations (Critical/High/Medium)
 3. Debate conflicts and reach consensus autonomously
-4. Output structured feedback
+4. Present recommendations incrementally (Critical one-at-a-time, then High/Medium with review style choice)
 
-**Apply expert feedback:**
-- Address all Critical issues before proceeding
-- Consider High Priority improvements
-- Document any Medium Priority items deferred to future work
+The `/review-features` command handles the full incremental presentation flow. Refine scenarios based on accepted recommendations.
 
-Refine scenarios based on consensus recommendations.
+### Step 8: Affected Documentation
 
-Instead of separate task lists, use inline comments to track scenario progress:
+After scenarios are finalized, scan the project for documentation that needs updating.
 
-```gherkin
-<!-- TODO -->
-Scenario: User logs in successfully
-  Given I am on the login page
-  When I enter valid credentials
-  Then I am redirected to dashboard
+**Scan for existing documentation:**
 
-<!-- DONE -->
-Scenario: Invalid credentials show error
-  Given I am on the login page
-  When I enter invalid credentials
-  Then I see an error message
+Use Glob to find documentation files:
+```
+Glob("**/*.md", path="<project>")
+Glob("**/docs/**", path="<project>")
 ```
 
-Scenarios ARE the plan. Tests prove scenarios are satisfied. No duplicate tracking needed.
+Look for:
+- `README.md` — Project overview and usage
+- `CLAUDE.md` — AI assistant instructions
+- `docs/` directory — User guides, API docs, technical specs
+- `CHANGELOG.md` — Release notes
+- `CONTRIBUTING.md` — Contributor guidelines
+- API documentation (OpenAPI specs, Swagger files)
 
-### Step 8: Local Development Environment Check
+**Determine which documents are affected:**
+
+For each documentation file found, compare the planned behavioral changes against the document's content. A document is affected if:
+- It describes behavior the plan changes
+- It references APIs, commands, or features the plan modifies
+- It contains examples that will become incorrect
+
+**Write the Affected Documentation section:**
+
+Add a markdown checklist to the plan file:
+```markdown
+## Affected Documentation
+
+- [ ] Update README.md — describe new Technology Checkpoint step in plan workflow
+- [ ] Update docs/user-guide.md — add section on incremental recommendation review
+- [ ] Update CLAUDE.md — document new skill availability
+```
+
+Each item:
+- References a specific document path
+- Briefly describes what needs updating
+- Is a trackable checkbox item
+
+If no documentation is affected, include the section with a note:
+```markdown
+## Affected Documentation
+
+No existing documentation is affected by these changes.
+```
+
+### Step 9: Local Development Environment Check
 
 Before finalizing plan, verify local dev environment exists or add setup scenarios:
 
@@ -226,7 +299,7 @@ Before finalizing plan, verify local dev environment exists or add setup scenari
    - Local dev scenarios come first
    - Work command will verify local dev works before starting
 
-### Step 9: Write Plan File
+### Step 10: Write Plan File
 
 Create the plan file at:
 `<project>/plans/YYYY-MM-DD-<slug>.md`
@@ -259,17 +332,23 @@ Scenario: <technical requirement>
   When <technical action>
   Then <technical outcome>
 
+## Affected Documentation
+
+- [ ] Update <path> — <brief description of needed update>
+
 ## Notes
 
 <design decisions, architectural choices, constraints, context>
 ```
+
+The **Affected Documentation** section appears after Technical Specifications and before Notes. Each item is a markdown checkbox (`- [ ]`) referencing a specific document path.
 
 Create the plans directory if it doesn't exist:
 ```bash
 mkdir -p <project>/plans
 ```
 
-### Step 10: Report Completion
+### Step 11: Report Completion
 
 After creating the plan, report:
 
@@ -277,7 +356,7 @@ After creating the plan, report:
 Plan created: <path to plan file>
 
 Expert Review Summary:
-- All 7 experts reviewed and approved
+- All experts reviewed and approved
 - [List any major changes from review]
 
 Ready to work. Run /tommymorgan:work to begin.

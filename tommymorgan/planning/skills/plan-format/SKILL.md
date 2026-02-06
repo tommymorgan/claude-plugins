@@ -1,20 +1,20 @@
 ---
 name: plan-format
-description: This skill should be used when creating plan files, writing Gherkin requirements, generating tasks with verification commands, or parsing plan file structure. Provides the plan file template and format specifications.
-version: 0.1.0
+description: This skill should be used when creating plan files, writing Gherkin requirements, or parsing plan file structure. Provides the plan file template and format specifications.
+version: 0.2.0
 ---
 
 # Plan File Format
 
-Specification for plan files used by the tommymorgan plugin. Plan files capture feature requirements as Gherkin scenarios and tasks with verification commands.
+Specification for plan files used by the tommymorgan plugin. Plan files capture feature requirements as Gherkin scenarios with TODO/DONE tracking.
 
 ## Plan File Purpose
 
 Plan files serve as the single source of truth for feature development:
-- Capture requirements as executable Gherkin scenarios
-- Define tasks with verification commands that prove completion
-- Track progress across Claude sessions
-- Enable autonomous TDD execution
+- Capture requirements as Gherkin scenarios (User Requirements + Technical Specifications)
+- Track progress via `<!-- TODO -->` / `<!-- DONE -->` comment markers
+- Enable autonomous TDD execution via the work command
+- Scenarios ARE the plan — no separate task lists
 
 ## File Location
 
@@ -29,7 +29,7 @@ Where:
 - `YYYY-MM-DD` is the creation date
 - `<slug>` is a kebab-case version of the feature name
 
-Example: `apps/web/plans/2024-12-15-user-authentication.md`
+Example: `apps/web/plans/2025-12-15-user-authentication.md`
 
 ## Plan File Template
 
@@ -37,37 +37,35 @@ Example: `apps/web/plans/2024-12-15-user-authentication.md`
 # Feature: <Title>
 
 **Created**: YYYY-MM-DD
-**Branch**: feat/<slug>
 **Goal**: <One-sentence description of user-facing outcome>
 
-## Requirements
+## User Requirements
 
-Feature: <Feature Name>
-  Scenario: <Scenario name>
-    Given <precondition>
-    When <action>
-    Then <expected outcome>
-    And <additional outcome>
+<!-- TODO -->
+# Living: <project>/features/<file>.feature::<scenario-name>
+# Action: creates|replaces|extends|removes|deprecates
+# Status: TODO
+# Living updated: NO
+Scenario: <user-focused behavior>
+  Given <user context>
+  When <user action>
+  Then <user outcome>
 
-  Scenario: <Another scenario>
-    Given <precondition>
-    When <action>
-    Then <expected outcome>
+## Technical Specifications
 
-## Tasks
+<!-- TODO -->
+# Living: <project>/features/<file>.feature::<scenario-name>
+# Action: creates|replaces|extends|removes|deprecates
+# Status: TODO
+# Living updated: NO
+Scenario: <technical requirement>
+  Given <system state>
+  When <technical action>
+  Then <technical outcome>
 
-### 1. <Task description>
-**Verify**: `<command that exits 0 on success>`
-**Status**: pending
+## Affected Documentation
 
-### 2. <Task description>
-**Verify**: `<command>`
-**Status**: pending
-
-### N. Refactor tests for maintainability
-**Verify**: `<full test suite command>`
-**Status**: pending
-**Notes**: Reorganize from implementation-coupled to feature-focused tests
+- [ ] Update <path> — <brief description of needed update>
 
 ## Notes
 
@@ -80,74 +78,66 @@ Feature: <Feature Name>
 
 **Required fields:**
 - `**Created**`: Date in YYYY-MM-DD format
-- `**Branch**`: Git branch name, typically `feat/<slug>`
 - `**Goal**`: Single sentence describing user-facing outcome
 
-### Requirements Section
+### User Requirements Section
 
-Write Gherkin scenarios that fully capture the feature requirements.
+Language/framework agnostic Gherkin scenarios describing user-facing behavior.
 
-**Gherkin syntax:**
-- `Feature:` - Groups related scenarios
-- `Scenario:` - Specific behavior to test
-- `Given` - Preconditions/setup
-- `When` - Action being tested
-- `Then` - Expected outcome
-- `And` - Additional conditions
+**Rules:**
+- No mention of specific frameworks, databases, or technologies
+- Describe outcomes, not implementation
+- Focus on what the user experiences
 
-**Coverage requirements:**
-- Happy path scenarios (successful operations)
-- Error cases (invalid input, failures)
-- Edge cases (boundaries, empty states)
-- Security considerations (authorization, validation)
+### Technical Specifications Section
 
-**Writing tips:**
-- Use concrete values in examples ("user@example.com" not "an email")
-- One behavior per scenario
-- Focus on user-observable outcomes
-- Avoid implementation details in scenarios
+Implementation-specific Gherkin scenarios with actual technology versions.
 
-### Tasks Section
+**Rules:**
+- Reference actual project technologies and versions
+- Describe system behavior and technical constraints
+- Include integration points, data formats, API contracts
 
-Each task maps 1:1 with a test file. Task format:
+### Scenario Metadata
 
-```markdown
-### N. <Task description>
-**Verify**: `<verification command>`
-**Status**: pending|complete|blocked
+Each scenario has metadata comments:
+
+```gherkin
+# Living: <project>/features/<file>.feature::<scenario-name>
+# Action: creates|replaces|extends|removes|deprecates
+# Status: TODO
+# Living updated: NO
 ```
 
-**Verification command requirements:**
-- Must exit 0 on success, non-zero on failure
-- Typically runs a specific test file
-- Must be deterministic and repeatable
+**Living**: Path to the corresponding living specification file, or `none (initial implementation)` for new features.
 
-**Common verification patterns:**
-- TypeScript/JavaScript: `pnpm test src/path/to/test.test.ts`
-- Python: `pytest src/path/to/test_file.py`
-- Go: `go test ./path/to/package -run TestName`
-- Rust: `cargo test test_name`
+**Action**: Relationship to existing living specs:
+- `creates` — New, independent scenario
+- `replaces` — Completely replaces an existing scenario
+- `extends` — Adds to an existing scenario
+- `removes` — Deletes an existing scenario from the living spec
+- `deprecates` — Marks an old scenario as obsolete
 
-**Status values:**
-- `pending` - Task not yet completed
-- `complete` - Verification command passes
-- `blocked` - Cannot proceed, includes root cause
+**Status**: `TODO` or `DONE` — matches the `<!-- TODO -->` / `<!-- DONE -->` HTML comment marker.
 
-**For blocked tasks, add root cause:**
+**Living updated**: `NO`, `YES`, or `N/A` — whether the living spec file has been updated.
+
+### Affected Documentation Section
+
+Markdown checklist of documentation files affected by the planned changes. Appears after Technical Specifications and before Notes.
+
 ```markdown
-### 3. Add authentication middleware
-**Verify**: `pnpm test src/middleware/auth.test.ts`
-**Status**: blocked
-**Root Cause**: Requires JWT library upgrade in shared-lib, out of scope for this feature.
+## Affected Documentation
+
+- [ ] Update README.md — describe new feature in usage section
+- [ ] Update CLAUDE.md — document new commands
 ```
 
-**Final task requirement:**
-Every plan must end with a test refactoring task:
+If no documentation is affected:
 ```markdown
-### N. Refactor tests for maintainability
-**Verify**: `<full test suite command>`
-**Status**: pending
-**Notes**: Reorganize from implementation-coupled to feature-focused tests
+## Affected Documentation
+
+No existing documentation is affected by these changes.
 ```
 
 ### Notes Section
@@ -157,44 +147,41 @@ Preserve context for future sessions:
 - Constraints and dependencies
 - Implementation approach chosen
 - Rejected alternatives and why
-- Links to relevant documentation
 
-## Parsing Plan Files
+## Progress Tracking
 
-To extract tasks from a plan file:
+Progress is tracked via HTML comment markers above each scenario:
 
-1. Find lines matching `### \d+\. `
-2. Extract description (text after number and period)
-3. Find next line matching `**Verify**: \`(.+)\``
-4. Extract command from backticks
-5. Find next line matching `**Status**: (.+)`
-6. Extract status value
+- `<!-- TODO -->` — Scenario not yet implemented
+- `<!-- DONE -->` — Scenario implemented and verified
 
-To update task status:
+The `status` and `work` commands parse these markers to determine progress.
 
-1. Locate the specific task by number
-2. Find the `**Status**: ` line
-3. Replace status value (pending → complete)
-4. Preserve all other content
+## Gherkin Writing Guidelines
+
+**Coverage requirements:**
+- Happy path scenarios (successful operations)
+- Error cases (invalid input, failures)
+- Edge cases (boundaries, empty states)
+- Security considerations (authorization, validation)
+- Accessibility (table stakes)
+- Performance (table stakes)
+
+**Writing tips:**
+- Use concrete values in examples ("user@example.com" not "an email")
+- One behavior per scenario
+- Focus on user-observable outcomes
+- Avoid implementation details in User Requirements scenarios
 
 ## Validation Rules
 
 **Plan file validation:**
 - [ ] Has title starting with `# Feature:`
-- [ ] Has Created, Branch, Goal header fields
-- [ ] Has Requirements section with Gherkin scenarios
-- [ ] Has Tasks section with numbered tasks
-- [ ] Each task has Verify and Status fields
-- [ ] Verification commands are in backticks
-- [ ] Status values are valid (pending|complete|blocked)
-- [ ] Final task is test refactoring
-
-**Gherkin validation:**
-- [ ] At least one Feature block
-- [ ] Each Scenario has Given/When/Then
-- [ ] Scenarios are independent
-- [ ] No implementation details in scenarios
-
-## Example Plan File
-
-See `references/example-plan.md` for a complete working example.
+- [ ] Has Created and Goal header fields
+- [ ] Has User Requirements section with Gherkin scenarios
+- [ ] Has Technical Specifications section with Gherkin scenarios
+- [ ] Has Affected Documentation section
+- [ ] Each scenario has `<!-- TODO -->` or `<!-- DONE -->` marker
+- [ ] Each scenario has Living/Action/Status/Living updated metadata
+- [ ] User Requirements are language/framework agnostic
+- [ ] Technical Specifications use actual project versions
