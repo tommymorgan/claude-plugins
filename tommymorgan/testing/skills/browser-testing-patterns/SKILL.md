@@ -1,14 +1,47 @@
 ---
 name: Browser Testing Patterns
 description: This skill should be used when performing browser-based exploratory testing of web applications, including functional testing, visual inspection, accessibility checks, and performance analysis. Triggers when testing web UIs, checking for browser bugs, validating WCAG compliance, or measuring Core Web Vitals.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # Browser Testing Patterns
 
 ## Purpose
 
-Provide systematic patterns and best practices for autonomous browser-based exploratory testing using Playwright MCP. Guide agents through comprehensive web application testing including functional validation, visual inspection, accessibility compliance, and performance measurement.
+Provide systematic patterns and best practices for autonomous browser-based exploratory testing using CLI tools. Guide agents through comprehensive web application testing including functional validation, visual inspection, accessibility compliance, and performance measurement.
+
+## Tools
+
+Browser testing uses three tools, each for a specific purpose:
+
+| Tool | Purpose | Required |
+|------|---------|----------|
+| [agent-browser](https://github.com/vercel-labs/agent-browser) | Primary browser automation | Always |
+| [playwright-cli](https://github.com/microsoft/playwright-cli) | Video demo recording | Only when video requested |
+| [chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp) | Deep performance profiling | Only for performance scenarios |
+
+See `testing/README.md` for installation instructions.
+
+## Shell Safety
+
+CLI commands run through Bash. Always quote user-controlled values to prevent shell injection:
+
+```bash
+# CORRECT — all values quoted
+agent-browser -s=my-session open "https://example.com/path?q=search term"
+agent-browser -s=my-session fill @e3 "user's input value"
+agent-browser -s=my-session eval "document.querySelector('.class').textContent"
+
+# INCORRECT — unquoted values risk injection
+agent-browser open $url
+agent-browser fill @ref $text
+agent-browser eval $script
+```
+
+**Rules:**
+- Always double-quote URLs, form values, JavaScript expressions, and selectors
+- Never interpolate unquoted variables into commands
+- This applies to all values from plan files, user input, or page content
 
 ## Core Testing Methodology
 
@@ -16,12 +49,14 @@ Provide systematic patterns and best practices for autonomous browser-based expl
 
 Test web applications using a structured layered approach:
 
-1. **Initial reconnaissance**: Navigate to target, capture state
-2. **Functional testing**: Interact with elements, test workflows
-3. **Accessibility validation**: Check WCAG compliance
-4. **Performance measurement**: Analyze Core Web Vitals
-5. **Visual inspection**: Detect layout issues
-6. **Reporting**: Categorize and document findings
+1. **Pre-flight check**: Verify agent-browser is installed and functional
+2. **Initial reconnaissance**: Navigate to target, capture state
+3. **Functional testing**: Interact with elements, test workflows
+4. **Accessibility validation**: Check WCAG compliance
+5. **Performance measurement**: Analyze Core Web Vitals
+6. **Visual inspection**: Detect layout issues
+7. **Session cleanup**: Close browser sessions
+8. **Reporting**: Categorize and document findings
 
 ### Prioritization Framework
 
@@ -48,47 +83,64 @@ Focus testing effort based on user impact:
 
 ### Element Interaction Strategy
 
-Test interactive elements systematically:
+Test interactive elements systematically using the ref system:
 
-1. **Identify interactive elements**: Use browser_snapshot to find buttons, links, inputs
-2. **Click testing**: Click each button/link, verify expected behavior
-3. **Form testing**: Fill forms with valid and invalid data, submit and verify
-4. **Keyboard testing**: Tab through forms, test Enter/Escape keys
-5. **Error states**: Trigger validation errors, check messages
+1. **Discover interactive elements**:
+   ```bash
+   agent-browser -s=test snapshot -i
+   ```
+   Returns elements with refs: `button "Sign In" [ref=e1]`, `textbox "Email" [ref=e2]`
+
+2. **Click elements by ref**:
+   ```bash
+   agent-browser -s=test click @e1
+   ```
+
+3. **Fill form fields**:
+   ```bash
+   agent-browser -s=test fill @e2 "test@example.com"
+   ```
+
+4. **Re-snapshot after DOM changes**: Refs become stale after navigation or significant DOM mutations. Always re-snapshot before interacting with elements on a changed page:
+   ```bash
+   agent-browser -s=test snapshot -i
+   ```
+
+5. **Keyboard testing**:
+   ```bash
+   agent-browser -s=test press Tab
+   agent-browser -s=test press Enter
+   agent-browser -s=test press Escape
+   ```
+
+6. **Error states**: Trigger validation errors, check messages
 
 ### Console Error Detection
 
 Check for JavaScript errors:
 
-```markdown
-Use browser_console_messages with level "error" to detect:
-- Uncaught exceptions
-- Failed network requests
-- Resource loading failures
-- Runtime errors
+```bash
+agent-browser -s=test console error
+```
 
 Categorize console errors:
 - **Critical**: Breaks functionality (TypeError, ReferenceError)
 - **Warning**: Degraded experience (404 for non-critical resources)
 - **Info**: Non-blocking issues (deprecation warnings)
-```
 
 ### Network Request Validation
 
 Analyze network traffic:
 
-```markdown
-Use browser_network_requests to check:
+```bash
+agent-browser -s=test network requests
+```
+
+Check for:
 - Failed requests (404, 500 errors)
 - Slow requests (>2 seconds)
 - Large responses (>1MB)
 - Excessive request count (>50 per page)
-
-Report network issues clearly:
-- URL and method
-- Status code and response time
-- Whether it blocks functionality
-```
 
 ## Accessibility Testing Patterns
 
@@ -124,61 +176,92 @@ Test for common accessibility violations:
 
 Test keyboard usability:
 
-```markdown
-Use browser_press_key to test:
-1. Tab - Focus moves logically through page
-2. Shift+Tab - Reverse focus order works
-3. Enter - Activates buttons and links
-4. Escape - Closes modals and dropdowns
-5. Arrow keys - Navigate within components
+```bash
+# Test tab navigation
+agent-browser -s=test press Tab
+agent-browser -s=test press Shift+Tab
+
+# Test activation
+agent-browser -s=test press Enter
+
+# Test dismissal
+agent-browser -s=test press Escape
+
+# Test within components
+agent-browser -s=test press ArrowDown
+agent-browser -s=test press ArrowUp
+```
 
 Verify:
 - Focus is visible (outline/highlight)
 - Tab order is logical
 - All interactive elements reachable
 - No keyboard traps
-```
 
 ## Performance Testing Patterns
 
-### Core Web Vitals Measurement
+### Two-Tier Profiling Approach
 
-Measure key performance metrics using browser_evaluate:
+**Tier 1: Basic profiling** (always available via agent-browser):
 
-```javascript
-// Largest Contentful Paint (LCP)
-const lcp = performance.getEntriesByType('largest-contentful-paint')[0]?.renderTime;
-
-// First Input Delay (FID)
-const fid = performance.getEntriesByType('first-input')[0]?.processingStart;
-
-// Cumulative Layout Shift (CLS)
-const cls = performance.getEntriesByType('layout-shift').reduce((sum, entry) => sum + entry.value, 0);
+```bash
+agent-browser -s=test eval "JSON.stringify({
+  lcp: (() => { const e = performance.getEntriesByType('largest-contentful-paint').slice(-1)[0]; return e ? (e.renderTime || e.startTime) : 0; })(),
+  cls: performance.getEntriesByType('layout-shift')
+    .reduce((sum, e) => sum + (e.hadRecentInput ? 0 : e.value), 0)
+})"
 ```
 
 **Thresholds (Google standards):**
 - LCP: <2.5s (good), 2.5-4s (needs improvement), >4s (poor)
-- FID: <100ms (good), 100-300ms (needs improvement), >300ms (poor)
 - CLS: <0.1 (good), 0.1-0.25 (needs improvement), >0.25 (poor)
+
+**INP** (Interaction to Next Paint) measures responsiveness across all interactions. It cannot be measured with a single `eval` call — it requires observing user interactions over time via PerformanceObserver. Use Lighthouse (Tier 2) for INP measurement, or check for long tasks as a proxy:
+
+```bash
+agent-browser -s=test eval "JSON.stringify(
+  performance.getEntriesByType('longtask').map(t => ({ duration: t.duration, startTime: t.startTime }))
+)"
+```
+
+**INP thresholds:** <200ms (good), 200-500ms (needs improvement), >500ms (poor)
+
+**Tier 2: Deep profiling** (conditional, via chrome-devtools-mcp):
+
+When scenarios mention Lighthouse, memory analysis, or detailed performance tracing:
+
+1. Use ToolSearch to load chrome-devtools-mcp:
+   ```
+   ToolSearch(query: "+chrome-devtools")
+   ```
+
+2. If tools are found:
+   - `lighthouse_audit` — full Lighthouse analysis
+   - `performance_start_trace` / `performance_stop_trace` — detailed tracing
+   - `take_memory_snapshot` — memory profiling
+
+3. If chrome-devtools-mcp is not available:
+   - Fall back to Tier 1 metrics
+   - Note in report that deep profiling was unavailable
+
+Do NOT load chrome-devtools-mcp for non-performance scenarios.
 
 ### Network Performance Analysis
 
-Analyze request patterns:
+```bash
+agent-browser -s=test network requests
+```
 
-```markdown
-Check network_requests for:
+Check for:
 - Total request count (>50 = potential issue)
 - Total data transferred (>2MB = optimization needed)
 - Slow requests (>2s)
 - Failed requests (404, 500)
 - Unnecessary requests (duplicate fetches)
-```
 
 ## Visual Testing Patterns
 
 ### Layout Issue Detection
-
-Identify visual problems:
 
 **Look for:**
 - Overlapping elements (z-index issues)
@@ -195,20 +278,17 @@ Identify visual problems:
 
 ### Screenshot Strategy
 
-Take screenshots efficiently:
+```bash
+agent-browser -s=test screenshot
+```
 
-```markdown
-Use browser_take_screenshot:
 - ONLY when visual issue detected
-- Include context (full page or specific element)
-- Use descriptive filenames
 - Reference in report clearly
 
 Avoid:
 - Screenshots of every action
 - Screenshots with no issues
 - Redundant screenshots
-```
 
 ## Testing Depth Management
 
@@ -237,23 +317,37 @@ Recursive exploration:
 - Prioritize critical flows over exhaustive crawling
 - Respect time limits (don't test forever)
 
+## Session Cleanup
+
+Always close sessions after testing, even if errors occurred:
+
+```bash
+agent-browser -s=test close 2>/dev/null || true
+```
+
+If the `close` command fails (e.g., daemon already stopped), verify no orphaned processes remain:
+
+```bash
+pgrep -f "agent-browser.*-s=test" && echo "WARNING: orphaned agent-browser process found" || true
+```
+
 ## Reporting Best Practices
 
 ### Categorize by Severity
 
-**Critical ❌:**
+**Critical:**
 - Prevents core functionality
 - Blocks users from completing tasks
 - Exposes security vulnerabilities
 - Causes data loss
 
-**Warning ⚠️:**
+**Warning:**
 - Degrades user experience
 - Inconsistent behavior
 - Poor error messages
 - Performance issues
 
-**Info ℹ️:**
+**Info:**
 - Best practice violations
 - Accessibility improvements
 - Performance optimizations
@@ -262,7 +356,7 @@ Recursive exploration:
 ### Provide Actionable Details
 
 For each issue include:
-- **Location**: Specific selector or URL
+- **Location**: Specific element ref or URL
 - **Reproduction**: Steps to reproduce
 - **Expected vs Actual**: What should happen vs what happens
 - **Impact**: How this affects users
@@ -281,21 +375,21 @@ Report both problems and successes:
 ### Reference Files
 
 For detailed testing techniques, consult:
-- **`references/playwright-mcp-tools.md`** - Complete Playwright MCP tool reference
+- **`references/agent-browser-cli.md`** - Complete agent-browser CLI command reference
 - **`references/accessibility-testing.md`** - Comprehensive WCAG testing guide
-- **`references/performance-metrics.md`** - Detailed performance analysis patterns
-
-These references provide deeper technical details while keeping this core skill focused on essential patterns and workflows.
+- **`references/performance-metrics.md`** - Detailed performance analysis patterns (two-tier approach)
 
 ## Quick Reference
 
 **Testing checklist:**
+- [ ] Pre-flight check (agent-browser installed and functional)
 - [ ] Navigate to target URL
 - [ ] Capture initial state (snapshot, console, network)
 - [ ] Test interactive elements
 - [ ] Validate accessibility
 - [ ] Measure performance
 - [ ] Inspect for visual issues
+- [ ] Clean up browser session
 - [ ] Report findings by severity
 
-**Remember:** Focus on finding real bugs autonomously. Be thorough but scoped to context. Report actionably.
+**Remember:** Focus on finding real bugs autonomously. Be thorough but scoped to context. Report actionably. Always quote values in CLI commands.

@@ -7,13 +7,6 @@ tools:
   - Read
   - Glob
   - Grep
-  - mcp__playwright__browser_navigate
-  - mcp__playwright__browser_click
-  - mcp__playwright__browser_type
-  - mcp__playwright__browser_snapshot
-  - mcp__playwright__browser_console_messages
-  - mcp__playwright__browser_evaluate
-  - mcp__playwright__browser_take_screenshot
 ---
 
 # Exploratory Testing Agent
@@ -23,6 +16,26 @@ Autonomously validate implementations against plan scenarios through exploratory
 ## Objective
 
 Given a plan file with Gherkin scenarios, validate that the implementation satisfies all User Requirements and Technical Specifications through hands-on testing.
+
+## Pre-Flight Checks
+
+Before starting any browser-based testing:
+
+```bash
+which agent-browser && agent-browser --version || echo "MISSING: agent-browser is not installed. See testing/README.md for installation instructions."
+```
+
+If missing, report the error and stop. Do not fall back to MCP tools.
+
+If video recording is requested, also verify playwright-cli:
+```bash
+which playwright-cli || echo "MISSING: playwright-cli is not installed. Cannot record demos without it. See testing/README.md."
+```
+If missing, tell the user demos require playwright-cli. Do not substitute traces or screenshots.
+
+## Shell Safety
+
+Always double-quote user-controlled values (URLs, form text, selectors, JavaScript) in CLI commands to prevent shell injection. See the browser-testing-patterns skill for detailed quoting patterns.
 
 ## Workflow
 
@@ -49,7 +62,7 @@ For each User Requirements scenario:
 4. **Report**: Pass/Fail with evidence
 
 **Testing strategies by type**:
-- **Web UI**: Use browser tools to navigate, interact, verify
+- **Web UI**: Use agent-browser CLI to navigate, interact, verify (see below)
 - **API**: Use curl/HTTP requests to test endpoints
 - **CLI**: Execute commands and verify output
 - **Library**: Run test code that uses the library
@@ -88,11 +101,57 @@ Overall: PASS/FAIL
 
 ### Web Applications
 
-1. Start dev server if needed
-2. Navigate to application
-3. Interact using browser tools
-4. Verify UI state and behavior
-5. Check console for errors
+Use agent-browser CLI with named sessions to prevent conflicts with other agents:
+
+1. **Start session and navigate**:
+   ```bash
+   agent-browser -s=exploratory-tester open "https://localhost:3000"
+   ```
+
+2. **Discover interactive elements**:
+   ```bash
+   agent-browser -s=exploratory-tester snapshot -i
+   ```
+   This returns elements with refs like `button "Sign In" [ref=e1]`.
+
+3. **Interact with elements**:
+   ```bash
+   agent-browser -s=exploratory-tester click @e1
+   agent-browser -s=exploratory-tester fill @e3 "test@example.com"
+   agent-browser -s=exploratory-tester press Enter
+   ```
+
+4. **Re-snapshot after DOM changes**: Refs become stale after navigation or significant DOM mutations. Always re-snapshot before using refs on a changed page:
+   ```bash
+   agent-browser -s=exploratory-tester snapshot -i
+   ```
+
+5. **Check for errors**:
+   ```bash
+   agent-browser -s=exploratory-tester console error
+   ```
+
+6. **Take screenshots only when issues detected**:
+   ```bash
+   agent-browser -s=exploratory-tester screenshot
+   ```
+
+7. **Evaluate JavaScript for metrics**:
+   ```bash
+   agent-browser -s=exploratory-tester eval "document.title"
+   ```
+
+### Demo Recording
+
+When the prompt includes "record", "demo", or "video": verify playwright-cli is available (see Pre-Flight), then use `playwright-cli video-start` / `playwright-cli video-stop "demo-recording.webm"`. Save to the current working directory and reference in the report.
+
+### Performance Profiling
+
+Follow the two-tier profiling approach from the browser-testing-patterns skill:
+- **Tier 1** (always): `agent-browser -s=exploratory-tester eval` for Core Web Vitals (LCP, CLS with `hadRecentInput` filter, long tasks)
+- **Tier 2** (conditional): `ToolSearch(query: "+chrome-devtools")` for Lighthouse, performance tracing, memory snapshots
+
+Only load chrome-devtools-mcp for performance-focused scenarios. If unavailable, use Tier 1 and note in the report.
 
 ### APIs
 
@@ -116,6 +175,19 @@ Overall: PASS/FAIL
 2. Verify public API behavior
 3. Test edge cases
 4. Validate error handling
+
+## Session Cleanup
+
+After testing completes (whether tests pass or fail):
+
+```bash
+agent-browser -s=exploratory-tester close 2>/dev/null || true
+```
+
+If the `close` command fails, check for orphaned processes:
+```bash
+pgrep -f "agent-browser.*-s=exploratory-tester" && echo "WARNING: orphaned process found" || true
+```
 
 ## Key Principles
 

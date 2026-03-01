@@ -1,6 +1,6 @@
 # tommymorgan
 
-**Version**: 0.5.0
+**Version**: 0.6.0
 **Category**: Development Workflow
 **License**: MIT
 
@@ -310,7 +310,7 @@ Claude: Work incomplete: 4/12 scenarios TODO (67%)
 - `tdd-execution` - Red-Green-Refactor workflow
 - `verification-sweep` - Test execution and validation
 - `api-testing-patterns` - REST/GraphQL testing patterns
-- `browser-testing-patterns` - Web UI testing with Playwright
+- `browser-testing-patterns` - Web UI testing with agent-browser CLI
 - `cli-testing-patterns` - CLI tool testing patterns
 - `rest-api-guidelines` - REST API design patterns and conventions
 - `five-whys-methodology` - Root cause analysis process
@@ -371,9 +371,25 @@ python3 -m pytest
 **Python Dependencies:**
 - `Pillow (PIL)` - Required for automatic image resizing
 
-**No external plugin dependencies** - all functionality is self-contained.
+**Optional CLI tools for browser testing:**
+- `agent-browser` — Required for browser-based testing agents (install: `npm install -g @vercel-labs/agent-browser`)
+- `playwright-cli` — Required only for video demo recording (install: `npm install -g @playwright/cli@latest`)
+- `chrome-devtools-mcp` — Optional, for deep performance profiling (Lighthouse, memory snapshots)
+
+See `testing/README.md` for details.
 
 ## Changelog
+
+### v0.6.0 (2026-02-28)
+- **Changed**: Browser testing agents use agent-browser CLI instead of Playwright MCP tools for token-efficient browser automation
+- **Added**: playwright-cli integration for video demo recording
+- **Added**: Conditional chrome-devtools-mcp loading for deep performance profiling (Lighthouse, memory snapshots, performance tracing)
+- **Added**: Shell safety guidelines for CLI command construction
+- **Added**: Named session support for concurrent agent isolation
+- **Added**: Pre-flight checks for CLI tool availability
+- **Added**: `testing/README.md` documenting tooling choices and installation
+- **Changed**: `references/playwright-mcp-tools.md` replaced with `references/agent-browser-cli.md`
+- **Changed**: Performance metrics reference updated with two-tier profiling approach
 
 ### v0.5.0 (2026-02-06)
 - **Added**: Technology Checkpoint step in plan command — scans project files and confirms undecided technology decisions

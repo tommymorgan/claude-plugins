@@ -15,7 +15,7 @@ Information and UI components must be presentable to users in ways they can perc
 - **Audio/Video**: Captions or transcripts available
 
 **Detection methods:**
-- Use browser_snapshot to find images without alt
+- Use `agent-browser snapshot -i` to find images without alt
 - Check form inputs for aria-label or associated labels
 - Report missing text alternatives
 
@@ -30,10 +30,10 @@ UI components and navigation must be operable.
 - **Seizures**: No flashing content >3 times per second
 
 **Detection methods:**
-- Use browser_press_key to test Tab navigation
+- Use `agent-browser press Tab` to test Tab navigation
 - Verify focus moves logically through page
-- Test Escape key closes modals/dropdowns
-- Check Enter activates buttons/links
+- Test Escape key closes modals/dropdowns with `agent-browser press Escape`
+- Check Enter activates buttons/links with `agent-browser press Enter`
 
 ### 3. Understandable
 
@@ -61,7 +61,7 @@ Content must be robust enough for assistive technologies.
 - **Name/Role/Value**: Form controls have accessible names
 
 **Detection methods:**
-- Use browser_snapshot to check accessibility tree
+- Use `agent-browser snapshot -i` to check accessibility tree
 - Verify heading levels in sequence
 - Check ARIA attributes on custom controls
 
@@ -69,58 +69,42 @@ Content must be robust enough for assistive technologies.
 
 ### Alt Text Validation
 
-```javascript
-// Find images without alt text
-const result = await browser_evaluate({
-  function: `() => {
-    const images = Array.from(document.querySelectorAll('img'));
-    const missing = images.filter(img => !img.alt || img.alt.trim() === '');
-    return missing.map(img => ({
-      src: img.src,
-      location: img.getBoundingClientRect()
-    }));
-  }`
-});
+```bash
+agent-browser -s=test eval "JSON.stringify(
+  Array.from(document.querySelectorAll('img'))
+    .filter(img => !img.alt || img.alt.trim() === '')
+    .map(img => ({ src: img.src, location: img.getBoundingClientRect() }))
+)"
 ```
 
 ### Form Label Validation
 
-```javascript
-// Find inputs without labels
-const result = await browser_evaluate({
-  function: `() => {
-    const inputs = Array.from(document.querySelectorAll('input, textarea, select'));
-    const unlabeled = inputs.filter(input => {
-      const hasLabel = !!document.querySelector(\`label[for="\${input.id}"]\`);
+```bash
+agent-browser -s=test eval "JSON.stringify(
+  Array.from(document.querySelectorAll('input, textarea, select'))
+    .filter(input => {
+      const hasLabel = !!document.querySelector('label[for=\"' + input.id + '\"]');
       const hasAriaLabel = !!input.getAttribute('aria-label');
       return !hasLabel && !hasAriaLabel && input.type !== 'hidden';
-    });
-    return unlabeled.map(i => ({
-      type: i.type,
-      name: i.name,
-      id: i.id
-    }));
-  }`
-});
+    })
+    .map(i => ({ type: i.type, name: i.name, id: i.id }))
+)"
 ```
 
 ### Heading Hierarchy Check
 
-```javascript
-// Check heading order
-const result = await browser_evaluate({
-  function: `() => {
-    const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
-    const levels = headings.map(h => parseInt(h.tagName.slice(1)));
-    const issues = [];
-    for (let i = 1; i < levels.length; i++) {
-      if (levels[i] > levels[i-1] + 1) {
-        issues.push(\`Heading skip: h\${levels[i-1]} to h\${levels[i]}\`);
-      }
+```bash
+agent-browser -s=test eval "JSON.stringify((() => {
+  const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+  const levels = headings.map(h => parseInt(h.tagName.slice(1)));
+  const issues = [];
+  for (let i = 1; i < levels.length; i++) {
+    if (levels[i] > levels[i-1] + 1) {
+      issues.push('Heading skip: h' + levels[i-1] + ' to h' + levels[i]);
     }
-    return { headings: levels, issues };
-  }`
-});
+  }
+  return { headings: levels, issues };
+})())"
 ```
 
 ## Keyboard Navigation Testing
@@ -154,23 +138,20 @@ Common keyboard shortcuts to test:
 
 ### Testing Method
 
-```javascript
-// Check color contrast (requires color analysis)
-const result = await browser_evaluate({
-  function: `() => {
-    // Get computed styles
-    const element = document.querySelector('.text-element');
-    const styles = window.getComputedStyle(element);
-    return {
-      color: styles.color,
-      backgroundColor: styles.backgroundColor,
-      fontSize: styles.fontSize,
-      fontWeight: styles.fontWeight
-    };
-  }`
-});
+```bash
+# Check color contrast (requires color analysis)
+agent-browser -s=test eval "JSON.stringify((() => {
+  const element = document.querySelector('.text-element');
+  const styles = window.getComputedStyle(element);
+  return {
+    color: styles.color,
+    backgroundColor: styles.backgroundColor,
+    fontSize: styles.fontSize,
+    fontWeight: styles.fontWeight
+  };
+})())"
 
-// Report if contrast appears low (manual judgment or calculation needed)
+# Report if contrast appears low (manual judgment or calculation needed)
 ```
 
 ## Common Accessibility Violations
