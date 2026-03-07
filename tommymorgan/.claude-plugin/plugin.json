@@ -1,113 +1,113 @@
 {
-	"name": "tommymorgan",
-	"version": "0.6.0",
-	"description": "Self-contained development workflow: planning with expert review, autonomous TDD execution with 6-agent code review, smart testing, coverage analysis, documentation generation, and root-cause debugging",
-	"author": {
-		"name": "Tommy Morgan",
-		"email": "tommy@tommymorgan.com",
-		"url": "https://tommymorgan.com"
-	},
-	"repository": "https://github.com/tommy/claude-plugins",
-	"license": "MIT",
-	"keywords": [
-		"workflow",
-		"planning",
-		"testing",
-		"debugging",
-		"tdd",
-		"gherkin",
-		"autonomous",
-		"quality-gates",
-		"expert-review",
-		"image-processing",
-		"preprocessing",
-		"living-documentation",
-		"documentation-generation",
-		"coverage-analysis",
-		"evolutionary-docs"
-	],
-	"commands": [
-		"./planning/commands/plan.md",
-		"./planning/commands/work.md",
-		"./planning/commands/status.md",
-		"./planning/commands/review-plan.md",
-		"./planning/commands/review-features.md",
-		"./testing/commands/test.md",
-		"./debugging/commands/root-cause.md",
-		"./migration/commands/migrate-to-living-specs.md",
-		"./migration/commands/generate-docs.md",
-		"./migration/commands/coverage-analysis.md"
-	],
-	"skills": [
-		"./planning/skills/brainstorming",
-		"./planning/skills/plan-format",
-		"./planning/skills/tdd-execution",
-		"./planning/skills/verification-sweep",
-		"./testing/skills/api-testing-patterns",
-		"./testing/skills/browser-testing-patterns",
-		"./testing/skills/cli-testing-patterns",
-		"./debugging/skills/five-whys-methodology",
-		"./planning/skills/rest-api-guidelines"
-	],
-	"agents": [
-		"./review/agents/code-reviewer.md",
-		"./review/agents/comment-analyzer.md",
-		"./review/agents/test-analyzer.md",
-		"./review/agents/silent-failure-hunter.md",
-		"./review/agents/type-design-analyzer.md",
-		"./review/agents/code-simplifier.md",
-		"./testing/agents/api-explorer.md",
-		"./testing/agents/browser-explorer.md",
-		"./testing/agents/cli-tester.md",
-		"./testing/agents/exploratory-tester.md",
-		"./debugging/agents/root-cause-analyzer.md"
-	],
-	"hooks": {
-		"PreToolUse": [
-			{
-				"matcher": "Bash",
-				"hooks": [
-					{
-						"type": "command",
-						"command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/pre_push_squash.py",
-						"timeout": 30
-					}
-				]
-			}
-		],
-		"PostToolUse": [
-			{
-				"matcher": "Bash",
-				"hooks": [
-					{
-						"type": "command",
-						"command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/post-push-cleanup.py",
-						"timeout": 5
-					}
-				]
-			}
-		],
-		"Stop": [
-			{
-				"hooks": [
-					{
-						"type": "command",
-						"command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/stop_if_incomplete.py",
-						"timeout": 5
-					}
-				]
-			}
-		],
-		"UserPromptSubmit": [
-			{
-				"hooks": [
-					{
-						"type": "command",
-						"command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/resize_images.py",
-						"timeout": 5
-					}
-				]
-			}
-		]
-	}
+  "name": "tommymorgan",
+  "version": "0.7.0",
+  "description": "Self-contained development workflow: planning with expert review, autonomous TDD execution with 6-agent code review, smart testing, coverage analysis, documentation generation, and root-cause debugging",
+  "author": {
+    "name": "Tommy Morgan",
+    "email": "tommy@tommymorgan.com",
+    "url": "https://tommymorgan.com"
+  },
+  "repository": "https://github.com/tommy/claude-plugins",
+  "license": "MIT",
+  "keywords": [
+    "workflow",
+    "planning",
+    "testing",
+    "debugging",
+    "tdd",
+    "gherkin",
+    "autonomous",
+    "quality-gates",
+    "expert-review",
+    "image-processing",
+    "preprocessing",
+    "living-documentation",
+    "documentation-generation",
+    "coverage-analysis",
+    "evolutionary-docs"
+  ],
+  "commands": [
+    "./planning/commands/plan.md",
+    "./planning/commands/work.md",
+    "./planning/commands/status.md",
+    "./planning/commands/review-plan.md",
+    "./planning/commands/review-features.md",
+    "./testing/commands/test.md",
+    "./debugging/commands/root-cause.md",
+    "./migration/commands/migrate-to-living-specs.md",
+    "./migration/commands/generate-docs.md",
+    "./migration/commands/coverage-analysis.md"
+  ],
+  "skills": [
+    "./planning/skills/brainstorming",
+    "./planning/skills/plan-format",
+    "./planning/skills/tdd-execution",
+    "./planning/skills/verification-sweep",
+    "./testing/skills/api-testing-patterns",
+    "./testing/skills/browser-testing-patterns",
+    "./testing/skills/cli-testing-patterns",
+    "./debugging/skills/five-whys-methodology",
+    "./planning/skills/rest-api-guidelines"
+  ],
+  "agents": [
+    "./review/agents/code-reviewer.md",
+    "./review/agents/comment-analyzer.md",
+    "./review/agents/test-analyzer.md",
+    "./review/agents/silent-failure-hunter.md",
+    "./review/agents/type-design-analyzer.md",
+    "./review/agents/code-simplifier.md",
+    "./testing/agents/api-explorer.md",
+    "./testing/agents/browser-explorer.md",
+    "./testing/agents/cli-tester.md",
+    "./testing/agents/exploratory-tester.md",
+    "./debugging/agents/root-cause-analyzer.md"
+  ],
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/pre_push_squash.py",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/post-push-cleanup.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/stop_if_incomplete.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/resize_images.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
 }

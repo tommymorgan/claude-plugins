@@ -74,11 +74,17 @@ Before the user sees each design section, route it to relevant experts based on 
 
 | Section Content Keywords | Expert(s) Invoked |
 |---|---|
-| database, schema, migration, storage, persistence, query | Martin Kleppmann (Data-Intensive Systems) |
-| page, form, button, display, UI, component, dashboard, click | Jakob Nielsen (Usability) |
-| endpoint, request, response, REST, API, HTTP | REST API Guidelines skill + OWASP Security Expert |
-| deploy, pipeline, build, release, CI/CD, container | Dave Farley (Continuous Delivery) |
-| *(always)* | Marty Cagan (Product Strategy) — reviews every section for product value |
+| database, schema, migration, storage, persistence, query | Data Systems Expert |
+| page, form, button, display, UI, component, dashboard, click | UX Expert + Accessibility Expert |
+| endpoint, request, response, REST, API, HTTP | REST API Guidelines skill + Security Expert |
+| deploy, pipeline, build, release, CI/CD, container | Continuous Delivery Expert + Cloud Expert |
+| test, spec, scenario, assert, mock, stub, fixture | Testing Expert |
+| module, service, boundary, integration, composition, coupling | Software Architecture Expert |
+| user, PII, data collection, consent, retention, GDPR | Privacy Expert |
+| metric, SLO, monitor, alert, log, trace, observe | SRE Expert |
+| domain, entity, aggregate, bounded context, ubiquitous language | Domain Design Expert |
+| lead time, deployment frequency, feedback loop, batch size | Engineering Effectiveness Expert |
+| *(always)* | Product Strategy Expert — reviews every section for product value |
 
 For each section:
 1. Draft the section content
@@ -87,8 +93,8 @@ For each section:
 4. Incorporate expert feedback into the section
 5. Add a brief annotation noting which expert reviewed and what they suggested:
    ```
-   > Reviewed by Martin Kleppmann: Suggested adding index strategy for the query pattern described.
-   > Reviewed by Marty Cagan: Confirmed this delivers clear user value.
+   > Reviewed by Data Systems Expert: Suggested adding index strategy for the query pattern described.
+   > Reviewed by Product Strategy Expert: Confirmed this delivers clear user value.
    ```
 6. Present the improved section to the user
 
