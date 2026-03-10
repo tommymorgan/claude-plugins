@@ -20,7 +20,7 @@ claude plugin install <plugin-name>@tommymorgan
 
 ## Available Plugins
 
-### [tommymorgan](./tommymorgan/README.md) v2.0.0
+### [tommymorgan](./tommymorgan/README.md) v0.7.0
 
 **Development Workflow with Living Documentation** - Comprehensive workflow plugin with living Gherkin specs, planning with expert review, autonomous TDD execution with automatic spec updates, documentation generation, coverage analysis, and root-cause debugging.
 
@@ -32,7 +32,7 @@ claude plugin install <plugin-name>@tommymorgan
 - Test coverage analysis and gap identification
 - Gherkin-based planning with enhanced metadata tracking
 - Autonomous TDD execution with quality gates
-- Expert plan review (7 domain experts with context-aware filtering)
+- Expert plan review (13 domain experts with context-aware filtering)
 - Work completion enforcement (stop hook blocks partial completion)
 - Automatic image resizing (2000px limit, configurable)
 - Root cause analysis (five whys methodology)

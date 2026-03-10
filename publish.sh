@@ -58,6 +58,43 @@ bump_version() {
     echo "$major.$minor.$patch"
 }
 
+# Validate documentation is up to date with current version
+validate_docs() {
+    local plugin_name=$1
+    local expected_version=$2
+    local errors=0
+
+    # Check plugin README version badge
+    local readme_version
+    readme_version=$(grep -oP '\*\*Version\*\*: \K[0-9]+\.[0-9]+\.[0-9]+' "$plugin_name/README.md" 2>/dev/null || echo "")
+    if [[ "$readme_version" != "$expected_version" ]]; then
+        log_error "$plugin_name/README.md version is ${readme_version:-missing}, expected $expected_version"
+        errors=$((errors + 1))
+    fi
+
+    # Check root README plugin version
+    local root_version
+    root_version=$(grep -oP "\[$plugin_name\].*v\K[0-9]+\.[0-9]+\.[0-9]+" README.md 2>/dev/null || echo "")
+    if [[ "$root_version" != "$expected_version" ]]; then
+        log_error "README.md plugin version is v${root_version:-missing}, expected v$expected_version"
+        errors=$((errors + 1))
+    fi
+
+    # Check CHANGELOG has entry for current version
+    if ! grep -q "### v$expected_version" "$plugin_name/CHANGELOG.md" 2>/dev/null; then
+        log_error "$plugin_name/CHANGELOG.md missing entry for v$expected_version"
+        errors=$((errors + 1))
+    fi
+
+    if [[ $errors -gt 0 ]]; then
+        log_error "Update documentation to match current version ($expected_version) before publishing."
+        return 1
+    fi
+
+    log_info "Documentation validated"
+    return 0
+}
+
 # Main script logic (only run when executed, not sourced)
 if [[ "$RUN_MAIN" == "true" ]]; then
 
@@ -99,10 +136,14 @@ log_info "All dependencies available"
 # Change to homelab directory
 cd "$HOMELAB_DIR"
 
-# Detect changed plugins using git
+# Detect changed plugins using jj (preferred) or git
 log_step "Detecting changed plugins..."
-# Get all changed files (staged and unstaged)
-CHANGED_FILES=$(git diff --name-only HEAD)
+# Get all changed files — try jj first, fall back to git
+if command -v jj &>/dev/null && jj root &>/dev/null 2>&1; then
+    CHANGED_FILES=$(jj diff --name-only)
+else
+    CHANGED_FILES=$(git diff --name-only HEAD)
+fi
 # Strip tools/claude-plugins/ prefix if present (when run from subdirectory of git repo)
 CHANGED_FILES=$(echo "$CHANGED_FILES" | sed 's|^tools/claude-plugins/||')
 # Extract plugin directory names
@@ -110,7 +151,7 @@ CHANGED_PLUGINS=$(echo "$CHANGED_FILES" | cut -d/ -f1 | sort -u | grep -v -E '^(
 
 # Handle no changes
 if [[ -z "$CHANGED_PLUGINS" ]]; then
-    log_error "No plugin changes detected in git"
+    log_error "No plugin changes detected"
     log_error "Make changes to a plugin first, then run publish"
     exit 1
 fi
@@ -140,6 +181,10 @@ fi
 # Read current versions
 CURRENT_PLUGIN_VERSION=$(jq -r '.version' "$PLUGIN_JSON")
 CURRENT_MARKETPLACE_VERSION=$(jq -r '.metadata.version' "$MARKETPLACE_JSON")
+
+# Validate documentation before proceeding
+log_step "Validating documentation..."
+validate_docs "$PLUGIN_NAME" "$CURRENT_MARKETPLACE_VERSION"
 
 # Calculate new versions
 NEW_VERSION=$(bump_version "$CURRENT_MARKETPLACE_VERSION" "$BUMP_TYPE")
@@ -198,7 +243,7 @@ if git rev-parse "v$NEW_VERSION" >/dev/null 2>&1; then
 fi
 
 # Create tag
-git tag "v$NEW_VERSION"
+git tag -m "v$NEW_VERSION" "v$NEW_VERSION"
 
 log_info "Commit and tag created"
 

@@ -37,7 +37,7 @@ Pass the plan file to `/review-features`:
 The expert panel will:
 1. Extract Gherkin scenarios from the plan
 2. Detect context from content
-3. Run 7 domain experts
+3. Run 13 domain experts
 4. Provide prioritized recommendations
 
 ### Step 3: Display Results

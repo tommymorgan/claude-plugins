@@ -34,6 +34,3 @@ Html documentation is generated: a user navigates using only keyboard, all inter
 
 ### Migration handles large numbers of plans efficiently
 A project with 50+ historical plans: the migration tool runs, it completes within reasonable time (< 5 minutes), it provides progress feedback, it doesn't consume excessive memory.
-
-### User logs in successfully
-I am on the login page: i enter valid credentials, i am redirected to my dashboard.

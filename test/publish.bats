@@ -18,8 +18,25 @@ setup() {
 }
 EOF
 
-    # Create initial README
-    echo "# Plugin" > "$HOMELAB_DIR/tommymorgan/README.md"
+    # Create plugin README with correct version
+    cat > "$HOMELAB_DIR/tommymorgan/README.md" <<'READMEEOF'
+# tommymorgan
+
+**Version**: 0.3.0
+READMEEOF
+
+    # Create root README with correct version
+    cat > "$HOMELAB_DIR/README.md" <<'ROOTEOF'
+### [tommymorgan](./tommymorgan/README.md) v0.3.0
+ROOTEOF
+
+    # Create CHANGELOG with correct version
+    cat > "$HOMELAB_DIR/tommymorgan/CHANGELOG.md" <<'CHANGEEOF'
+# Changelog
+
+### v0.3.0 (2026-01-01)
+- Initial release
+CHANGEEOF
 
     # Create mock marketplace.json
     cat > "$HOMELAB_DIR/.claude-plugin/marketplace.json" <<EOF
@@ -45,8 +62,8 @@ EOF
     git add .
     git commit -q -m "Initial commit"
 
-    # Modify existing file in plugin
-    echo "# Changed" > tommymorgan/README.md
+    # Modify plugin file to create dirty working tree (append to preserve version)
+    echo "" >> tommymorgan/README.md
 
     # Initialize publish repo with main branch
     mkdir -p "$PUBLISH_DIR"
@@ -126,8 +143,8 @@ teardown() {
     git commit -q -m "Add second plugin"
 
     # Modify both plugins
-    echo "# Changed 1" > tommymorgan/README.md
-    echo "# Changed 2" > other-plugin/README.md
+    echo "# Changed 1" >> tommymorgan/README.md
+    echo "# Changed 2" >> other-plugin/README.md
 
     # Run publish script
     HOMELAB_DIR="$HOMELAB_DIR" PUBLISH_DIR="$PUBLISH_DIR" \
@@ -183,7 +200,7 @@ teardown() {
 
 @test "Script validates arguments - invalid bump type" {
     cd "$HOMELAB_DIR"
-    echo "# Test" > tommymorgan/README.md
+    echo "# Test" >> tommymorgan/README.md
 
     HOMELAB_DIR="$HOMELAB_DIR" PUBLISH_DIR="$PUBLISH_DIR" \
         run "$SCRIPT_PATH" invalid "fix: test"
@@ -231,8 +248,8 @@ teardown() {
 @test "Show progress during publish" {
     cd "$HOMELAB_DIR"
 
-    # Modify plugin file
-    echo "# Progress test" > tommymorgan/README.md
+    # Modify plugin file (append to preserve version)
+    echo "# Progress test" >> tommymorgan/README.md
 
     # Run publish script
     HOMELAB_DIR="$HOMELAB_DIR" PUBLISH_DIR="$PUBLISH_DIR" \
@@ -252,7 +269,7 @@ teardown() {
 
 @test "Script updates all version locations" {
     cd "$HOMELAB_DIR"
-    echo "# Update test" > tommymorgan/README.md
+    echo "# Update test" >> tommymorgan/README.md
 
     # Run publish
     HOMELAB_DIR="$HOMELAB_DIR" PUBLISH_DIR="$PUBLISH_DIR" \
@@ -304,7 +321,7 @@ teardown() {
 @test "Script creates git commit and tag" {
     # Already covered by test 1, but verify explicitly
     cd "$HOMELAB_DIR"
-    echo "# Commit test" > tommymorgan/README.md
+    echo "# Commit test" >> tommymorgan/README.md
 
     HOMELAB_DIR="$HOMELAB_DIR" PUBLISH_DIR="$PUBLISH_DIR" \
         run "$SCRIPT_PATH" patch "fix: commit test"
@@ -324,7 +341,7 @@ teardown() {
 @test "Script detects changed plugin from git" {
     # Already covered by test 1
     cd "$HOMELAB_DIR"
-    echo "# Detection test" > tommymorgan/README.md
+    echo "# Detection test" >> tommymorgan/README.md
 
     HOMELAB_DIR="$HOMELAB_DIR" PUBLISH_DIR="$PUBLISH_DIR" \
         run "$SCRIPT_PATH" patch "fix: detection test"
@@ -360,4 +377,105 @@ teardown() {
     # Verify script checks remote for tag
     grep -q 'git ls-remote.*tags.*origin' "$SCRIPT_PATH"
     grep -q 'verified on GitHub' "$SCRIPT_PATH"
+}
+
+@test "Reject publish when plugin README version is stale" {
+    cd "$HOMELAB_DIR"
+
+    cat > "$HOMELAB_DIR/tommymorgan/README.md" <<EOF
+# tommymorgan
+
+**Version**: 0.2.0
+EOF
+
+    cat > "$HOMELAB_DIR/README.md" <<EOF
+### [tommymorgan](./tommymorgan/README.md) v0.3.0
+EOF
+
+    mkdir -p "$HOMELAB_DIR/tommymorgan"
+    cat > "$HOMELAB_DIR/tommymorgan/CHANGELOG.md" <<EOF
+### v0.3.0
+- Initial release
+EOF
+
+    HOMELAB_DIR="$HOMELAB_DIR" PUBLISH_DIR="$PUBLISH_DIR" \
+        run "$SCRIPT_PATH" minor "feat: test stale plugin readme"
+
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"tommymorgan/README.md version is 0.2.0, expected 0.3.0"* ]]
+}
+
+@test "Reject publish when root README version is stale" {
+    cd "$HOMELAB_DIR"
+
+    cat > "$HOMELAB_DIR/tommymorgan/README.md" <<EOF
+# tommymorgan
+
+**Version**: 0.3.0
+EOF
+
+    cat > "$HOMELAB_DIR/README.md" <<EOF
+### [tommymorgan](./tommymorgan/README.md) v0.1.0
+EOF
+
+    cat > "$HOMELAB_DIR/tommymorgan/CHANGELOG.md" <<EOF
+### v0.3.0
+- Initial release
+EOF
+
+    HOMELAB_DIR="$HOMELAB_DIR" PUBLISH_DIR="$PUBLISH_DIR" \
+        run "$SCRIPT_PATH" minor "feat: test stale root readme"
+
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"README.md plugin version is v0.1.0, expected v0.3.0"* ]]
+}
+
+@test "Reject publish when CHANGELOG missing current version entry" {
+    cd "$HOMELAB_DIR"
+
+    cat > "$HOMELAB_DIR/tommymorgan/README.md" <<EOF
+# tommymorgan
+
+**Version**: 0.3.0
+EOF
+
+    cat > "$HOMELAB_DIR/README.md" <<EOF
+### [tommymorgan](./tommymorgan/README.md) v0.3.0
+EOF
+
+    cat > "$HOMELAB_DIR/tommymorgan/CHANGELOG.md" <<EOF
+### v0.2.0
+- Old release
+EOF
+
+    HOMELAB_DIR="$HOMELAB_DIR" PUBLISH_DIR="$PUBLISH_DIR" \
+        run "$SCRIPT_PATH" minor "feat: test missing changelog"
+
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"tommymorgan/CHANGELOG.md missing entry for v0.3.0"* ]]
+}
+
+@test "Publish succeeds when all documentation is up to date" {
+    cd "$HOMELAB_DIR"
+
+    cat > "$HOMELAB_DIR/tommymorgan/README.md" <<EOF
+# tommymorgan
+
+**Version**: 0.3.0
+EOF
+
+    cat > "$HOMELAB_DIR/README.md" <<EOF
+### [tommymorgan](./tommymorgan/README.md) v0.3.0
+EOF
+
+    cat > "$HOMELAB_DIR/tommymorgan/CHANGELOG.md" <<EOF
+### v0.3.0
+- Initial release
+EOF
+
+    HOMELAB_DIR="$HOMELAB_DIR" PUBLISH_DIR="$PUBLISH_DIR" \
+        run "$SCRIPT_PATH" minor "feat: test docs validated"
+
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Documentation validated"* ]]
 }
