@@ -1,6 +1,6 @@
 {
   "name": "tommymorgan",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Self-contained development workflow: planning with expert review, autonomous TDD execution with 6-agent code review, smart testing, coverage analysis, documentation generation, and root-cause debugging",
   "author": {
     "name": "Tommy Morgan",
@@ -36,7 +36,8 @@
     "./debugging/commands/root-cause.md",
     "./migration/commands/migrate-to-living-specs.md",
     "./migration/commands/generate-docs.md",
-    "./migration/commands/coverage-analysis.md"
+    "./migration/commands/coverage-analysis.md",
+    "./demo/commands/demo.md"
   ],
   "skills": [
     "./planning/skills/brainstorming",

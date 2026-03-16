@@ -1,5 +1,18 @@
 # Changelog
 
+### v0.9.0 (2026-03-15)
+- **Added**: `/tommymorgan:demo` command for automated product demo video creation
+- **Added**: Four-stage pipeline: Script Generation → Recording → Narration → Composition
+- **Added**: Three recording strategies: scene-based (isolated clips), continuous, screenshot (Ken Burns)
+- **Added**: Edge TTS narration with per-scene voice configuration and VTT subtitle generation
+- **Added**: ffmpeg video composition with H.264/AAC output and crossfade transitions
+- **Added**: Browser automation fallback chain: agent-browser → playwright CLI → playwright MCP
+- **Added**: Scene-level error isolation so one failure doesn't block the entire demo
+- **Added**: Quality validation of output video (audio levels, video streams, duration)
+- **Added**: Sensitive URL detection with warnings for authenticated demo targets
+- **Added**: Idempotent re-runs and single-scene re-recording support
+- **Added**: Versioned JSON schema (Zod) for self-contained demo scripts
+
 ### v0.7.0 (2026-03-06)
 - **Changed**: Expert panel expanded from 7 to 13 composite domain experts with named influences
 - **Added**: Testing Expert, Cloud Expert, Accessibility Expert, Engineering Effectiveness Expert, Software Architecture Expert, and Privacy Expert

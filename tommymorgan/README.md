@@ -1,6 +1,6 @@
 # tommymorgan
 
-**Version**: 0.7.0
+**Version**: 0.9.0
 **Category**: Development Workflow
 **License**: MIT
 
@@ -146,6 +146,26 @@ Systematic root cause analysis using five whys methodology.
 2. Gather evidence (logs, code, metrics)
 3. Ask "why?" until root cause found (typically 5 levels deep)
 4. Only then attempt fixes
+
+### Demo Creation
+
+#### `/tommymorgan:demo`
+Create polished product demo videos with natural TTS narration.
+
+**Usage**:
+- `/tommymorgan:demo` — Conversational demo creation
+- `/tommymorgan:demo <plan-file>` — Generate from plan file (no interaction)
+
+**Pipeline**: Script Generation → Recording → Narration → Composition
+
+**Recording Strategies**:
+- Scene-based — Isolated video clips per scene
+- Continuous — Single recording session
+- Screenshot — PNG capture with Ken Burns animation
+
+**Output**: `<project>/demos/<name>/output.mp4` + `output.vtt` subtitles
+
+**Dependencies**: ffmpeg, edge-tts, Playwright (or agent-browser)
 
 ## Hooks
 

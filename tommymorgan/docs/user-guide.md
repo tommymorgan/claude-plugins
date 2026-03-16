@@ -34,3 +34,25 @@ Html documentation is generated: a user navigates using only keyboard, all inter
 
 ### Migration handles large numbers of plans efficiently
 A project with 50+ historical plans: the migration tool runs, it completes within reasonable time (< 5 minutes), it provides progress feedback, it doesn't consume excessive memory.
+
+## Demo Creation
+
+### Creating a demo conversationally
+Invoke `/tommymorgan:demo` and describe the product you want to demo. Claude generates a structured demo script with scenes, narration text, and browser actions. The script is presented scene-by-scene for review and editing before recording begins.
+
+### Creating a demo from a plan file
+Invoke `/tommymorgan:demo <plan-file>` with a plan that has a "Demo Scenarios" section. The demo script is generated automatically without interaction — useful for automated pipelines.
+
+### Recording strategies
+Choose one of three strategies per demo:
+- **Scene-based**: Each scene is recorded as an isolated video clip, then composited. Best for polished demos.
+- **Continuous**: All scenes captured in a single browser session. Best for natural walkthroughs.
+- **Screenshot**: Screenshots taken after each scene's actions, animated with Ken Burns (pan/zoom). Most reliable for automation.
+
+### Re-recording a scene
+After a demo is created, request re-recording of a specific scene by ID. Only that scene is re-recorded and the final video is recomposed — no need to redo the entire demo.
+
+### System requirements
+- **ffmpeg**: Video composition (Ken Burns, crossfade, H.264/AAC encoding)
+- **edge-tts**: Natural voice narration (free, no API key required)
+- **Browser tool**: At least one of agent-browser, playwright CLI, or playwright MCP
