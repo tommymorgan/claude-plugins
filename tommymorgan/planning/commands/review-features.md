@@ -6,6 +6,7 @@ allowed-tools:
   - Read
   - Glob
   - Grep
+  - Task
   - AskUserQuestion
 ---
 
@@ -70,172 +71,24 @@ Store detected categories - experts will use this to filter relevance.
 
 ### Step 3: Expert Panel Review
 
-Invoke the domain experts below to review the scenarios. Each expert:
-1. Reviews scenarios relevant to their expertise
-2. Considers detected content context
-3. Provides recommendations with priority (Critical/High/Medium)
-4. Self-filters based on relevance to context
+Dispatch a Task to the `tommymorgan:expert-panel` agent with:
 
-**Expert Panel:**
+- `subagent_type`: `tommymorgan:expert-panel`
+- Prompt containing:
+  1. All loaded scenarios, each formatted as a finding:
+     - **Source**: "Scenario review"
+     - **Location**: Scenario name and source file/section
+     - **Context**: The full Gherkin text (Given/When/Then)
+     - **Issue**: "Review this scenario for quality, completeness, and correctness"
+     - **Suggestion**: (none — the panel generates recommendations)
+  2. The detected content categories from Step 2
+  3. The instruction: "Review each scenario from your domain perspective. For each issue found, provide a priority (Critical/High/Medium), the specific scenario reference, reasoning, and a suggested improvement. Debate any conflicts between experts."
 
-Each expert reviews as a single unified voice using its domain label. Named influences inform what the persona knows and values, but output is one coherent perspective per domain.
+The expert panel agent (defined in `review/agents/expert-panel.md`) handles expert selection, review, debates, and consensus internally.
 
-#### 1. Product Strategy Expert
-- **Influences**: Marty Cagan
-- **Focus**: User-facing scenarios
-- **Reviews for**: User outcomes vs implementation details, product value, user scenarios
-- **Flags**: Technical details leaking into user scenarios, missing user value
-- **Output**: Product-focused recommendations
+### Step 4: Process Panel Output
 
-#### 2. Continuous Delivery Expert
-- **Influences**: Dave Farley, Jez Humble
-- **Focus**: All scenarios
-- **Reviews for**: Testability, automation, CD anti-patterns (manual gates, approval steps), deployment frequency, trunk-based development alignment
-- **Flags**: Deployment blockers, manual processes, untestable scenarios, batch-size anti-patterns
-- **Output**: Automation and deployability recommendations
-
-#### 3. Security Expert
-- **Influences**: Bruce Schneier, Troy Hunt
-- **Focus**: Technical scenarios
-- **Context-aware filtering**:
-  - If context = "hook" or "cli": Focus on command injection, input validation, path traversal
-  - If context = "backend_service": Focus on auth/authz, input validation, rate limiting, credential handling
-  - If context = "ui_component": Focus on XSS, CSRF, client-side validation
-  - If context = "database_migration": Focus on SQL injection, access control, data exposure
-  - Skip irrelevant security concerns for context
-- **Reviews for**: Threat modeling, practical vulnerability patterns, defense in depth
-- **Flags**: Missing authentication, unvalidated input, information leakage, insecure defaults
-- **Output**: Security recommendations relevant to content context
-
-#### 4. UX Expert
-- **Influences**: Don Norman, Jakob Nielsen
-- **Focus**: User-facing scenarios
-- **Reviews for**: Cognitive affordances and mental models, usability heuristics, error messaging, feedback loops
-- **Flags**: Multiple prompts, unclear errors, UX anti-patterns, missing feedback, violations of user expectations
-- **Output**: Usability and design improvements
-
-#### 5. Data Systems Expert
-- **Influences**: Martin Kleppmann, Michael Stonebraker
-- **Focus**: Technical scenarios
-- **Context-aware filtering**:
-  - If context = "hook" or "cli" or "claude_plugin": Acknowledge limited applicability
-  - If context = "database_migration": Full review — schema design, data flow and consistency
-  - If context = "backend_service": Query patterns, indexing, data modeling
-  - Adjust to relevant data concerns only
-- **Reviews for**: Schema design, query optimization, data consistency, distributed data concerns
-- **Flags**: Missing indexes, N+1 patterns, schema that doesn't match access patterns, data integrity gaps
-- **Output**: Data architecture recommendations appropriate to scale
-
-#### 6. Domain Design Expert
-- **Influences**: Eric Evans
-- **Focus**: All scenarios
-- **Reviews for**: Domain modeling, ubiquitous language consistency, bounded contexts
-- **Flags**: Mismatched terminology, unclear domain concepts, leaky abstractions
-- **Output**: Domain model improvements
-
-#### 7. SRE Expert
-- **Influences**: Google SRE authors, Charity Majors
-- **Focus**: Technical scenarios
-- **Context-aware filtering**:
-  - If context = "hook" or "cli" or "claude_plugin": Minimal observability (logging, error handling)
-  - If context = "backend_service": Full observability review — metrics, monitoring, SLOs, production debugging
-  - Skip excessive recommendations for simple contexts
-- **Reviews for**: Observability, reliability practices, production debuggability, error budgets
-- **Flags**: Missing instrumentation, unobservable failure modes, alert fatigue patterns
-- **Output**: Operational recommendations appropriate to context
-
-#### 8. Testing Expert
-- **Influences**: Kent Beck, Dan North, Michael Feathers, Kent C. Dodds
-- **Focus**: All scenarios
-- **Context-aware filtering**:
-  - If context = "ui_component": Frontend testing patterns, component isolation, user-event-driven tests
-  - If context = "backend_service" or "database_migration": TDD patterns, integration test boundaries
-  - If context = "claude_plugin" or "hook" or "cli": BDD alignment, testability of scenarios themselves
-  - Legacy code contexts: Characterization tests, safe refactoring seams
-- **Reviews for**: Test design quality, scenario testability, test isolation, behavior-vs-implementation focus, missing edge cases
-- **Flags**: Tests coupled to implementation, untestable scenarios, missing error paths, tests that describe implementation rather than outcomes
-- **Output**: Test strategy and scenario quality recommendations
-
-#### 9. Cloud Expert
-- **Influences**: Werner Vogels, Adrian Cockcroft
-- **Focus**: Technical scenarios
-- **Context-aware filtering**:
-  - If context = "hook" or "cli" or "claude_plugin": Acknowledge limited applicability
-  - If context = "backend_service": Cloud-native patterns, scalability, service boundaries
-  - If context includes deployment, containers, or infrastructure: Full review
-- **Reviews for**: Cloud-native design, operational excellence at scale, infrastructure decisions, container patterns
-- **Flags**: Single points of failure, hardcoded infrastructure assumptions, missing health checks, non-portable patterns
-- **Output**: Cloud architecture recommendations
-
-#### 10. Accessibility Expert
-- **Influences**: Leonie Watson, Marcy Sutton
-- **Focus**: User-facing scenarios
-- **Context-aware filtering**:
-  - If context = "ui_component": Full review — ARIA patterns, keyboard navigation, screen reader compatibility, color contrast
-  - If context = "cli": Output readability, screen reader compatibility of terminal output
-  - If context = "backend_service" or "database_migration": Acknowledge limited applicability
-- **Reviews for**: Assistive technology compatibility, testable accessibility patterns, inclusive design
-- **Flags**: Missing keyboard interactions, inaccessible error presentation, missing ARIA semantics, untestable a11y requirements
-- **Output**: Accessibility improvements with testing guidance
-
-#### 11. Engineering Effectiveness Expert
-- **Influences**: Nicole Forsgren, Gene Kim
-- **Focus**: All scenarios
-- **Context-aware filtering**:
-  - If context = "backend_service" or "ui_component": Lead time, deployment frequency impact, feedback loop quality
-  - If context = "claude_plugin" or "hook": Developer experience, workflow friction, cognitive load
-- **Reviews for**: DORA metrics alignment, value stream flow, feedback loops, developer experience, measurement anti-patterns
-- **Flags**: Bottlenecks in delivery flow, missing feedback loops, vanity metrics, processes that increase batch size
-- **Output**: Effectiveness and flow recommendations
-
-#### 12. Software Architecture Expert
-- **Influences**: Martin Fowler, Gregor Hohpe, Neal Ford, Rebecca Wirfs-Brock (FP-adapted)
-- **Focus**: Technical scenarios
-- **Context-aware filtering**:
-  - If context = "backend_service": Full review — module boundaries, integration patterns, evolutionary fitness
-  - If context = "ui_component": Component architecture, state management boundaries
-  - If context = "claude_plugin": Plugin structure, composition patterns, separation of concerns
-  - If context = "hook" or "cli": Minimal — coupling and cohesion only
-- **Reviews for**: System structure, integration and communication patterns, evolutionary architecture and fitness functions, module responsibility and cohesion using FP framing
-- **Flags**: Tight coupling, unclear module responsibilities, premature abstraction, missing integration boundaries, architecture decisions that resist evolution
-- **Output**: Structural and compositional recommendations
-- **Special note**: Apply Wirfs-Brock's responsibility-driven thinking using functional programming framing — module responsibilities, function composition, data flow ownership — rather than OOP roles/stereotypes
-
-#### 13. Privacy Expert
-- **Influences**: Ann Cavoukian, Cathy O'Neil
-- **Focus**: Technical scenarios
-- **Context-aware filtering**:
-  - If context = "backend_service" or "database_migration": Full review — data minimization, consent, retention, access control
-  - If context = "ui_component": Consent UX, data collection transparency
-  - If context = "hook" or "cli" or "claude_plugin": Acknowledge limited applicability
-- **Reviews for**: Privacy by Design principles, algorithmic fairness and data ethics, data minimization, purpose limitation
-- **Flags**: Collecting data without clear purpose, missing retention policies, opaque algorithmic decisions, PII in logs
-- **Output**: Privacy and data ethics recommendations
-
-### Step 4: Expert Debates
-
-When experts have conflicting recommendations:
-
-1. **Present disagreement**: Expert A states position with reasoning
-2. **Counter-argument**: Expert B presents alternative view
-3. **Other experts weigh in**: Additional perspectives from relevant experts
-4. **Reach consensus**: Document agreed-upon approach with rationale
-
-**Example Debate Structure:**
-```
-**Debate: Error Handling Approach**
-
-Security Expert: "All errors should be sanitized to prevent information leakage"
-UX Expert: "Users need specific error messages to understand what went wrong"
-Domain Design Expert: "Error messages should use domain language, not technical jargon"
-
-**Consensus**: Show user-friendly domain-specific errors; log technical details server-side
-**Reasoning**: Balances security (no stack traces) with usability (actionable feedback)
-```
-
-### Step 5: Generate Prioritized Recommendations
-
-Group all expert recommendations by priority:
+Parse the expert panel's output and group recommendations by priority:
 
 **Critical Issues**: Must address before implementation
 **High Priority**: Strongly recommended improvements
@@ -248,7 +101,7 @@ Each recommendation includes:
 - Suggested improvement
 - Priority level
 
-### Step 6: Output Structured Review
+### Step 5: Output Structured Review
 
 Generate the review and present recommendations incrementally to the user.
 
@@ -363,7 +216,7 @@ Options:
 3. Evaluate Medium Priority enhancements based on scope
 ```
 
-### Step 7: Structure Output
+### Step 6: Structure Output
 
 Present progress through the review:
 - Which source was loaded
