@@ -45,6 +45,26 @@ claude plugin install tommymorgan@tommymorgan
 
 **[Full Documentation →](./tommymorgan/README.md)**
 
+### [flow](./flow/README.md) v0.1.0
+
+**Flow Metrics and Probabilistic Forecasting** - Data-source agnostic flow metrics, probabilistic forecasting, and process stability analysis based on Daniel Vacanti's framework (AAMFP, WWIBD, AAMFP Vol II).
+
+**Key Features:**
+- Interactive per-project setup with configurable process boundaries
+- Cycle Time percentile-based Service Level Expectations
+- Monte Carlo simulation for multi-item delivery forecasting
+- XmR charts (Process Behaviour Charts) with signal detection
+- WIP monitoring with aging item alerts
+- Guidance skills that apply Vacanti's principles in real-time
+- Autonomous flow analyst agent
+
+**Install:**
+```bash
+claude plugin install flow@tommymorgan
+```
+
+**[Full Documentation →](./flow/README.md)**
+
 ---
 
 ## Plugin Development

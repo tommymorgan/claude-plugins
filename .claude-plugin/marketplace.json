@@ -18,11 +18,11 @@
       "category": "workflow"
     },
     {
-      "name": "auto-resize-images",
-      "source": "./auto-resize-images",
-      "description": "Automatically resize oversized images before Claude API submission to prevent 2000px dimension limit errors",
-      "version": "1.0.0",
-      "category": "productivity"
+      "name": "flow",
+      "source": "./flow",
+      "description": "Data-source agnostic flow metrics, probabilistic forecasting, and process stability analysis based on Vacanti's framework",
+      "version": "0.1.0",
+      "category": "metrics"
     }
   ]
 }

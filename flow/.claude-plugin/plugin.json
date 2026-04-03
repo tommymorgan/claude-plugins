@@ -1,0 +1,18 @@
+{
+	"name": "flow",
+	"version": "0.1.0",
+	"description": "Data-source agnostic flow metrics, probabilistic forecasting, and process stability analysis based on Vacanti's framework",
+	"author": {
+		"name": "Tommy Morgan",
+		"email": "tommy@tommymorgan.com"
+	},
+	"commands": [
+		"./commands/setup.md",
+		"./commands/fetch-data.md",
+		"./commands/sle.md",
+		"./commands/health.md",
+		"./commands/forecast.md"
+	],
+	"skills": ["./skills/metrics-guidance", "./skills/stability-guidance"],
+	"agents": ["./agents/analyst.md"]
+}
